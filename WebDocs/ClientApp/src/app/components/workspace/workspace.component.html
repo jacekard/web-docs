@@ -1,0 +1,14 @@
+<div class="workspace">
+    <ng-container *ngFor="let c of cursors">
+        <div class="cursor" [style.left.px]="c.positionX" [style.top.px]="c.positionY">
+        </div>
+    </ng-container>
+
+    <div #document (click)="updateDocument()" spellcheck="false">
+        <div>
+            <div id="editor" #page class="page" (keydown)="onKeydown($event)">
+                {{ loadedContent }}
+            </div>
+        </div>
+    </div>
+</div>

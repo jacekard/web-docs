@@ -1,0 +1,30 @@
+<h2>Your documents</h2>
+<hr/>
+
+<button type="button" class="btn btn-lg btn-outline-primary" (click)="create()">
+    Create new document!
+    <i class="material-icons">note_add</i>
+</button>
+
+<ng-container *ngIf="documents; else empty">
+    <div class="container document-list" *ngFor="let document of documents">
+        <mat-card (click)="edit(document.id)">
+            <mat-card-header>
+                <mat-card-title>
+                    {{ document.name }}
+                </mat-card-title>
+            </mat-card-header>
+            <hr />
+            <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="document">
+            <mat-card-content>
+                <p>
+                    Last modified on: {{ document.lastModifiedDate }}
+                </p>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</ng-container>
+
+<ng-template #empty>
+    <p>Whoops! It seems like you haven't created anything yet.</p>
+</ng-template>
