@@ -22,25 +22,34 @@ export class DocumentsComponent implements OnInit {
   }
 
   create() {
-    this.router.navigateByUrl(`/workspace/new`);
+    this.docsService.createNewDocument()
+    .then(p => p
+      .subscribe((doc) => {
+        this.router.navigateByUrl(`/workspace/${doc.id}`);
+      }));
   }
 
   edit(id: number) {
     this.router.navigateByUrl(`/workspace/${id}`);
   }
 
-  delete(document: WebDocument) {
-    console.log(document);
-    this.docsService.deleteDocument(document).then(
-      () => this.ngOnInit());
+  delete(docId: number) {
+    this.docsService.deleteDocument(docId).then(
+      () => {
+        var index = this.documents.findIndex(function(doc) {
+          return doc.id === docId;
+        });
+        if (index !== -1)
+          this.documents.splice(index, 1);
+      });
   }
 
-  showMenu(tooltip, document: WebDocument) {
+  showMenu(tooltip, docId: number) {
     if (tooltip.isOpen()) {
       tooltip.close();
     } 
     else {
-      tooltip.open({document});
+      tooltip.open({docId});
     }
   }
 }

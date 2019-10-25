@@ -4,6 +4,7 @@
 - authorization with JWT (JSON Web Tokens)
 - registration/login
 - SignalR for real-time document sharing
+- saving/updating/deleting documents with signalR and REST
 - mutex in critical section of saving the document
 - persistance layer using ef core
 - unit tests using in-memory database and Moq library
@@ -12,9 +13,5 @@
 - editing existing documents
 - responsive ui
 - navigation arrows
-
-TODO:
-- printable version (to fix)
-- limit signalr clients connections to specific document
-- removing documents from db
-- add loader
+- loading screen while logging
+- printable version

@@ -46,7 +46,7 @@ registerLocaleData(localePl);
       { path: 'documents', component: DocumentsComponent, canActivate: [AuthorizeGuard] } 
     ]),
     BrowserAnimationsModule,
-    MatSnackBarModule,
+    MatSnackBarModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },

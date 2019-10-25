@@ -22,7 +22,7 @@
                 <mat-card-header>
                     <div>
                         <i class="material-icons more-icon" placement="top" [ngbTooltip]="options_menu"
-                        triggers="manual" #t1="ngbTooltip" (click)="showMenu(t1, document)"> more_vert </i>
+                        triggers="manual" #tooltip="ngbTooltip" (click)="showMenu(tooltip, document.id)"> more_vert </i>
                     </div>
                     <mat-card-title *ngIf="document.name; else untitled">
                         {{ document.name }}
@@ -56,8 +56,8 @@
     </mat-card-title>
 </ng-template>
 
-<ng-template #options_menu let-document="document">
-    <button type="button" class="btn btn-sm btn-outline-danger" (click)="delete(document)">
+<ng-template #options_menu let-docId="docId">
+    <button type="button" class="btn btn-sm btn-outline-danger" (click)="delete(docId)">
         <i class="material-icons note-add-icon">delete_outline</i>
     </button>
 </ng-template>

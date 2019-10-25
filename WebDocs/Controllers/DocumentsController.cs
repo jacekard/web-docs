@@ -45,9 +45,9 @@ namespace WebDocs.Controllers
         {
             try
             {
-                var document = await this.docsProvider.GetDocument(id);
-                document.UserId = User.Claims.Where(claim => claim.Type == ClaimTypes.NameIdentifier).FirstOrDefault().Value;
-                
+                var userId = User.Claims.Where(claim => claim.Type == ClaimTypes.NameIdentifier).FirstOrDefault().Value;
+                var document = await this.docsProvider.GetDocument(userId, id);
+
                 return this.Ok(document);
             }
             catch (Exception ex)
@@ -57,12 +57,13 @@ namespace WebDocs.Controllers
         }
 
         [HttpDelete]
-        [Route("")]
-        public async Task<IActionResult> DeleteDocument([FromBody] Document document)
+        [Route("{id}")]
+        public async Task<IActionResult> DeleteDocument(long id)
         {
             try
             {
-                await this.docsProvider.DeleteDocument(document);
+                var userId = User.Claims.Where(claim => claim.Type == ClaimTypes.NameIdentifier).FirstOrDefault().Value;
+                await this.docsProvider.DeleteDocument(userId, id);
 
                 return this.Ok();
             }

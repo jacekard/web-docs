@@ -19,9 +19,22 @@ namespace WebDocs.Hubs
             this.docsProvider = docsProvider;
         }
 
-        public async Task SendMessage(string user, string message)
+        public async Task SaveDocument(Document document)
         {
-            await Clients.All.SendAsync("ReceiveMessage", user, message).ConfigureAwait(false);
+            if (document == null)
+            {
+                return;
+            }
+
+            mutex.WaitOne();
+            try
+            {
+                await docsProvider.SaveDocument(document);
+            }
+            finally
+            {
+                mutex.ReleaseMutex();
+            }
         }
 
         public async Task UpdateDocumentContent(Document document)
@@ -31,21 +44,24 @@ namespace WebDocs.Hubs
                 return;
             }
 
-            await Clients.Others.SendAsync("ReceiaveDocumentContent", document.Content);
+            var groupName = document.Id.ToString();
+            await Clients.OthersInGroup(groupName).SendAsync("ReceiveDocumentContent", document.Content);
+        }
 
-            this.mutex.WaitOne();
-            try
-            {
-                await docsProvider.SaveDocument(document);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "UpdateDocumentContent in DocHub threw an exception while saving document.");
-            }
-            finally
-            {
-                this.mutex.ReleaseMutex();
-            }
+        public async Task AddToDocumentGroup(long documentId)
+        {
+            var groupName = documentId.ToString();
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+
+            await Clients.OthersInGroup(groupName).SendAsync("EditorAdded");
+        }
+
+        public async Task RemoveFromDocumentGroup(long documentId)
+        {
+            var groupName = documentId.ToString();
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+
+            await Clients.OthersInGroup(groupName).SendAsync("EditorRemoved");
         }
 
         public async Task PingCursorPosition(Cursor cursor)

@@ -37,8 +37,13 @@
 
 .form-control {
 	position: relative;
-	top: 35px;
 	width: 21cm;	
+}
+
+#toolbar-container {
+	position: relative;
+	top: 17px;
+	width: 22cm;
 }
 
 .nav-btn {
@@ -65,7 +70,21 @@
 	justify-content: center;
 }
 
-.arrow-back-icon {
+.save-button {
+	position: absolute;
+	top: 4px;
+	left: 90px;
+	display: flex;
+	justify-content: center;
+}
+
+.save-button:hover {
+	border-color: #007bff !important;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px #007bff !important;
+	outline: 0 none;
+}
+
+.icon {
 	margin-top: 5px;
 	font-size: 35px;
 }

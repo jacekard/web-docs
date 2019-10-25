@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthorizeService } from '../../api-authorization/authorize.service';
 import { WebDocument } from '../interfaces/webDocument';
+import { resolve } from 'q';
 
 @Injectable({
   providedIn: 'root'
@@ -31,16 +32,14 @@ export class DocumentsService {
     return response;
   }
 
-  async deleteDocument(document: WebDocument) : Promise<any> {
-
+  deleteDocument(id: number) : Promise<any> {
     /* TODO, naprawić. W obiekcie document nie ma userId i nie mapuje sie z kontrolerem [FromBody]...*/
-    const token = await this.authService.getAccessToken();
-    const httpOptions = {
-      headers: new HttpHeaders(!token ? {} : {'Authorization': `Bearer ${token}`}),
-      body: document 
-    }
-    const response = this.http.delete('/api/documents/', httpOptions)
+    const token = this.authService.getAccessToken();
+    let promise = new Promise<WebDocument>(function(resolve, reject) {});
     
-    return response;
+    return this.http.delete<WebDocument>(
+      `/api/documents/${id}`,
+      { headers: !token ? {} : {'Authorization': `Bearer ${token}`}})
+        .toPromise();
   }
 }

@@ -10,10 +10,10 @@ namespace WebDocs.Logic
     {
         List<RestDocument> GetDocuments(string userId);
 
-        Task<Document> GetDocument(long docId);
+        Task<Document> GetDocument(string userId, long docId);
 
         Task SaveDocument(Document document);
 
-        Task DeleteDocument(Document document);
+        Task DeleteDocument(string userId, long docId);
     }
 }

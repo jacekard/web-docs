@@ -23,8 +23,7 @@ export class SignalRService {
 
   public startConnection = () => {
     this.hubConnection
-      .start()
-      .then(() => this.snackBar.open('Group work is now enabled!'))  
+      .start()  
       .catch(err => {
         if(this.initialConnection) {
           this.initialConnection = false;
@@ -34,6 +33,10 @@ export class SignalRService {
           this.startConnection();
         }, this.timeout);
       });
+  }
+
+  public connectionEstablished() : signalR.HubConnectionState {
+    return this.hubConnection.state;
   }
 
   public registerHandler(methodName: string, method: (...args: any[]) => void): void {

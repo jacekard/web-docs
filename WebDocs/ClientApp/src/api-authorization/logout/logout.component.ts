@@ -38,6 +38,7 @@ export class LogoutComponent implements OnInit {
         break;
       case LogoutActions.LoggedOut:
         this.message.next('You successfully logged out!');
+        await this.navigateToReturnUrl(this.getReturnUrl());
         break;
       default:
         throw new Error(`Invalid action '${action}'`);

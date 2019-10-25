@@ -16,7 +16,6 @@ namespace WebDocs.Logic
         public DocumentsProvider(ApplicationDbContext dbContext)
         {
             this.dbContext = dbContext;
-            Log.Information("Working!");
         }
 
         public List<RestDocument> GetDocuments(string userId)
@@ -38,17 +37,21 @@ namespace WebDocs.Logic
             }
         }
 
-        public async Task<Document> GetDocument(long docId)
+        public async Task<Document> GetDocument(string userId, long docId)
         {
-            var document = await this.dbContext.Documents.FirstOrDefaultAsync(x => x.Id == docId);
-
-            return document ?? new Document();
+            var document = await this.dbContext.Documents.FirstOrDefaultAsync(x => x.Id == docId) ?? new Document();
+            document.UserId = userId;
+            
+            await this.SaveDocument(document);
+            
+            return document;
         }
 
-        public async Task DeleteDocument(Document document)
+        public async Task DeleteDocument(string userId, long docId)
         {
-            this.dbContext.Users.Single(x => x.Id == document.UserId).Documents.Remove(document);
-            await this.dbContext.SaveChangesAsync();
+            var document = await this.dbContext.Documents.FirstOrDefaultAsync(x => x.Id == docId);
+            this.dbContext.Users.Single(x => x.Id == userId).Documents.Remove(document);
+            this.dbContext.SaveChanges();
         }
 
         public async Task SaveDocument(Document document)
@@ -58,19 +61,18 @@ namespace WebDocs.Logic
             var entity = this.dbContext.Documents.Find(document.Id);
             if (entity == null)
             {
-                try
-                {
-                    await this.dbContext.Documents.AddAsync(document);
-                    var user = await this.dbContext.Users.FindAsync(document.UserId);
-                    user.Documents.Add(document);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
+                await this.dbContext.Documents.AddAsync(document);
+                var user = await this.dbContext.Users.FindAsync(document.UserId);
+                user.Documents.Add(document);
             }
             else
             {
+                var user = await this.dbContext.Users.FindAsync(document.UserId);
+                var userDocument = user.Documents.FirstOrDefault(x => x.Id == document.Id);
+                if (userDocument == null)
+                {
+                    user.Documents.Add(document);
+                }
                 this.dbContext.Entry(entity).CurrentValues.SetValues(document);
             }
 

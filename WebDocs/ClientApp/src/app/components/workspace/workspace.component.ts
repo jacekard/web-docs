@@ -1,11 +1,13 @@
-import { Component, OnInit, ElementRef, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, HostListener, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SignalRService } from 'src/app/services/signal-r.service';
 import { Cursor } from 'src/app/interfaces/cursor';
-import BalloonEditor from '@ckeditor/ckeditor5-build-balloon';
+import DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document';
 import { DocumentsService } from 'src/app/services/documents.service';
 import { WebDocument } from 'src/app/interfaces/webDocument';
 import * as $ from 'jquery';
+import { HubConnectionState } from '@aspnet/signalr';
+import { SnackBarService } from 'src/app/services/snack-bar.service';
 
 @Component({
   selector: 'app-workspace',
@@ -23,7 +25,8 @@ export class WorkspaceComponent implements OnInit {
     private signalR: SignalRService,
     private route: ActivatedRoute,
     private router: Router,
-    private docsService: DocumentsService) { }
+    private docsService: DocumentsService,
+    private snackBar: SnackBarService) { }
 
   // myCursor: Cursor;
   // cursors: Cursor[];
@@ -35,17 +38,21 @@ export class WorkspaceComponent implements OnInit {
     // this.cursors = new Array<Cursor>();
     // this.myCursor = { userId: 0, positionX: 0, positionY: 0, offsetLeft: 0, offsetTop: 0 };
     this.registerConnections();
+    setTimeout(() => {
+      this.AddToDocumentGroup();
+    }, 1000);
+  }
+
+  ngOnDestroy() {
+    this.saveDocument();
+    this.RemoveFromDocumentGroup();
   }
 
   initWorkspace() {
     const id = this.route.snapshot.paramMap.get('id');
 
     if (id == null) {
-      this.docsService.createNewDocument()
-      .then(p => p
-        .subscribe((doc) => {
-          this.document = doc;
-        }));
+
     }
     else {
       this.docsService.getDocument(parseInt(id))
@@ -62,7 +69,16 @@ export class WorkspaceComponent implements OnInit {
     this.signalR.registerHandler("ReceiveDocumentContent", (content: string) => {
       this.document.content = content;
       (<any>window).editor.setData(content);
+    });
+
+    this.signalR.registerHandler("EditorAdded", () => {
+      this.snackBar.open(`You are now sharing this document with others.`);
+    });
+
+    this.signalR.registerHandler("EditorRemoved", () => {
+      this.snackBar.open(`You are now sharing this document with others.`);
     })
+
 
     // TODO: 
     // this.signalR.registerHandler("updateCursorPosition", (cursor: Cursor) => {
@@ -77,19 +93,42 @@ export class WorkspaceComponent implements OnInit {
     // })
   }
 
+  AddToDocumentGroup() {
+    this.signalR.send("AddToDocumentGroup", this.document.id);
+  }
+
+  RemoveFromDocumentGroup() {
+    this.signalR.send("RemoveFromDocumentGroup", this.document.id);
+  }
+
+  saveDocument() {
+    this.document.content = (<any>window).editor.getData();
+    this.document.name = this.title;
+    this.signalR.send("saveDocument", this.document);
+    this.snackBar.open("Work saved!", 2000);
+  }
+
   initCkeEditor() {
-    var editor = BalloonEditor
-    .create( document.querySelector( '#editor' ) )
+    var editor = DecoupledEditor
+    .create( document.querySelector( '#editor' ), {
+      removePlugins: [ 'ImageUpload', 'MediaEmbed' ],
+    } )
     .then( editor => {
+        const toolbarContainer = document.querySelector( '#toolbar-container' );
+        toolbarContainer.appendChild( editor.ui.view.toolbar.element );
         (<any>window).editor = editor;
     } )
-    .catch( err => {
-        console.error( err.stack );
+    .catch( error => {
+        console.error( error );
     } );
+
+    DecoupledEditor.builtinPlugins.map( plugin => console.log(plugin.pluginName));
   }
 
   onKeydown(event) {
+    setTimeout(() => {
     this.updateDocument();
+    }, 200);
 
     // TODO: add cursor positioning
   }
