@@ -319,7 +319,7 @@ namespace WebDocs.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Document");
+                    b.ToTable("Documents");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

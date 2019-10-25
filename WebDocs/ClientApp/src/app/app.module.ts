@@ -1,9 +1,12 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
+import { registerLocaleData } from '@angular/common';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import localePl from '@angular/common/locales/pl';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -16,6 +19,8 @@ import { SafeHtml } from './pipes/safe-html';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material';
 import { DocumentsComponent } from './components/documents/documents.component';
+
+registerLocaleData(localePl);
 
 @NgModule({
   declarations: [
@@ -32,19 +37,20 @@ import { DocumentsComponent } from './components/documents/documents.component';
     FormsModule,
     ApiAuthorizationModule,
     MatCardModule,
+    NgbModule,
     RouterModule.forRoot([
       /* canActivate: [AuthorizeGuard] enables authorization on page. */
       { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'workspace', component: WorkspaceComponent },
-      { path: 'workspace/:id', component: WorkspaceComponent },
-      { path: 'documents', component: DocumentsComponent } 
-      //{ path: 'workspace', component: WorkspaceComponent, canActivate: [AuthorizeGuard] },
+      { path: 'workspace/new', component: WorkspaceComponent, canActivate: [AuthorizeGuard] },
+      { path: 'workspace/:id', component: WorkspaceComponent, canActivate: [AuthorizeGuard] },
+      { path: 'documents', component: DocumentsComponent, canActivate: [AuthorizeGuard] } 
     ]),
     BrowserAnimationsModule,
     MatSnackBarModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },
+    { provide: LOCALE_ID, useValue: 'pl-PL' },
     SafeHtml
   ],
   bootstrap: [AppComponent]

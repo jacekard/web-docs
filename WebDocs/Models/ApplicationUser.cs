@@ -8,6 +8,6 @@ namespace WebDocs.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        public ICollection<Document> Documents { get; set; }
+        public virtual ICollection<Document> Documents { get; set; }
     }
 }

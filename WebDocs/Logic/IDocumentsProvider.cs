@@ -8,12 +8,12 @@ namespace WebDocs.Logic
 {
     public interface IDocumentsProvider
     {
-        List<RestDocument> GetDocuments(string username);
+        List<RestDocument> GetDocuments(string userId);
 
-        Document GetDocument(long id);
+        Task<Document> GetDocument(long docId);
 
-        Task SaveDocument(string username, Document document);
+        Task SaveDocument(Document document);
 
-        void DeleteDocument(string username, Document document);
+        Task DeleteDocument(Document document);
     }
 }

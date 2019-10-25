@@ -8,7 +8,7 @@ namespace WebDocs.Data
 {
     public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>
     {
-        public DbSet<Document> Documents;
+        public DbSet<Document> Documents { get; set; }
 
         public ApplicationDbContext(
             DbContextOptions options,

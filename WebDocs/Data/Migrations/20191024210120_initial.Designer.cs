@@ -9,8 +9,8 @@ using WebDocs.Data;
 namespace WebDocs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20191022211202_Initial")]
-    partial class Initial
+    [Migration("20191024210120_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -321,7 +321,7 @@ namespace WebDocs.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Document");
+                    b.ToTable("Documents");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

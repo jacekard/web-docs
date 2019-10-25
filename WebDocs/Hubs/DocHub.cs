@@ -1,31 +1,51 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Serilog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using WebDocs.Logic;
 using WebDocs.Models;
 
 namespace WebDocs.Hubs
 {
     public class DocHub : Hub
     {
-        private readonly string DivClosingTag = "</div>";
-        private readonly string DocumentTemplate 
-            = "<div _ngcontent-ng-cli-universal-c2=\"\" class=\"page ck ck-content ck-editor__editable ck-rounded-corners ck-editor__editable_inline ck-focused\" id=\"editor\" lang=\"en\" dir=\"ltr\" role=\"textbox\" aria-label=\"Rich Text Editor, main\" contenteditable=\"true\">";
+        private readonly IDocumentsProvider docsProvider;
+
+        private readonly Mutex mutex = new Mutex();
+
+        public DocHub(IDocumentsProvider docsProvider)
+        {
+            this.docsProvider = docsProvider;
+        }
 
         public async Task SendMessage(string user, string message)
         {
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
+            await Clients.All.SendAsync("ReceiveMessage", user, message).ConfigureAwait(false);
         }
 
-        public async Task DocsModified(string user, string message)
+        public async Task UpdateDocumentContent(Document document)
         {
-            await Clients.Others.SendAsync("ReceiveMessage", user, message);
-        }
+            if (document == null)
+            {
+                return;
+            }
 
-        public async Task UpdateDocumentContent(string content)
-        {
-            await Clients.Others.SendAsync("ReceiveDocumentContent", content);
+            await Clients.Others.SendAsync("ReceiaveDocumentContent", document.Content);
+
+            this.mutex.WaitOne();
+            try
+            {
+                await docsProvider.SaveDocument(document);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "UpdateDocumentContent in DocHub threw an exception while saving document.");
+            }
+            finally
+            {
+                this.mutex.ReleaseMutex();
+            }
         }
 
         public async Task PingCursorPosition(Cursor cursor)

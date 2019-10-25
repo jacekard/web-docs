@@ -16,7 +16,6 @@ export class SignalRService {
                               .build();
 
     this.startConnection();
-    console.log("i'm working!");
     this.hubConnection.onclose(() => {
       this.snackBar.open("Refresh page to enable live reloading.", -1);
     });

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -10,11 +11,10 @@ using WebDocs.Models;
 
 namespace WebDocs.Controllers
 {
+    [Authorize]
     [Route("api/documents")]
     public class DocumentsController : Controller
     {
-        private string LoggedInUser => User.Identity.Name;
-
         private readonly IDocumentsProvider docsProvider;
 
         public DocumentsController(IDocumentsProvider docsProvider)
@@ -23,11 +23,13 @@ namespace WebDocs.Controllers
         }
 
         [HttpGet]
+        [Route("")]
         public IActionResult GetDocuments()
         {
             try
             {
-                var documents = this.docsProvider.GetDocuments(this.LoggedInUser);
+                var userId = User.Claims.Where(claim => claim.Type == ClaimTypes.NameIdentifier).FirstOrDefault().Value;
+                var documents = this.docsProvider.GetDocuments(userId);
 
                 return this.Ok(documents);
             }
@@ -39,13 +41,30 @@ namespace WebDocs.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public IActionResult GetDocument(long id)
+        public async Task<IActionResult> GetDocument(long id)
         {
             try
             {
-                var document = this.docsProvider.GetDocument(id);
-
+                var document = await this.docsProvider.GetDocument(id);
+                document.UserId = User.Claims.Where(claim => claim.Type == ClaimTypes.NameIdentifier).FirstOrDefault().Value;
+                
                 return this.Ok(document);
+            }
+            catch (Exception ex)
+            {
+                return this.NotFound(ex);
+            }
+        }
+
+        [HttpDelete]
+        [Route("")]
+        public async Task<IActionResult> DeleteDocument([FromBody] Document document)
+        {
+            try
+            {
+                await this.docsProvider.DeleteDocument(document);
+
+                return this.Ok();
             }
             catch (Exception ex)
             {

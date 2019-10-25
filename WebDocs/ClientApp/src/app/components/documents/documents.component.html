@@ -1,30 +1,63 @@
 <h2>Your documents</h2>
-<hr/>
+<hr />
 
-<button type="button" class="btn btn-lg btn-outline-primary" (click)="create()">
-    Create new document!
-    <i class="material-icons">note_add</i>
-</button>
+<div class="container document-list">
+    <mat-card class="card-doc">
+        <mat-card-header class="empty-header">
+            <mat-card-title>
+                Empty document
+            </mat-card-title>
+        </mat-card-header>
+        <hr />
+        <mat-card-content class="d-flex justify-content-center">
+            <button type="button" class="btn btn-lg btn-outline-primary" (click)="create()">
+                Create new <i class="material-icons note-add-icon">note_add</i>
+            </button>
+        </mat-card-content>
+    </mat-card>
 
-<ng-container *ngIf="documents; else empty">
-    <div class="container document-list" *ngFor="let document of documents">
-        <mat-card (click)="edit(document.id)">
-            <mat-card-header>
-                <mat-card-title>
-                    {{ document.name }}
-                </mat-card-title>
-            </mat-card-header>
-            <hr />
-            <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="document">
-            <mat-card-content>
-                <p>
-                    Last modified on: {{ document.lastModifiedDate }}
-                </p>
-            </mat-card-content>
-        </mat-card>
+    <ng-container *ngIf="documents; else empty_list">
+        <div *ngFor="let document of documents">
+            <mat-card class="card-doc">
+                <mat-card-header>
+                    <div>
+                        <i class="material-icons more-icon" placement="top" [ngbTooltip]="options_menu"
+                        triggers="manual" #t1="ngbTooltip" (click)="showMenu(t1, document)"> more_vert </i>
+                    </div>
+                    <mat-card-title *ngIf="document.name; else untitled">
+                        {{ document.name }}
+                    </mat-card-title>
+                    <mat-card-subtitle>
+                        <p>
+                            Last modified on: {{ document.lastModifiedDate | date:'shortDate' }}
+                        </p>
+                    </mat-card-subtitle>
+                </mat-card-header>
+                <hr />
+                <mat-card-content class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-lg btn-outline-primary" (click)="edit(document.id)">
+                        Edit <i class="material-icons note-add-icon">edit</i>
+                    </button>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </ng-container>
+</div>
+
+<ng-template #empty_list>
+    <div class="empty-list">
+        <p>Whoops! It seems like you haven't created anything yet.</p>
     </div>
-</ng-container>
+</ng-template>
 
-<ng-template #empty>
-    <p>Whoops! It seems like you haven't created anything yet.</p>
+<ng-template #untitled>
+    <mat-card-title>
+        (Untitled document)
+    </mat-card-title>
+</ng-template>
+
+<ng-template #options_menu let-document="document">
+    <button type="button" class="btn btn-sm btn-outline-danger" (click)="delete(document)">
+        <i class="material-icons note-add-icon">delete_outline</i>
+    </button>
 </ng-template>

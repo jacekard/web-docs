@@ -1,0 +1,20 @@
+- Serilog logging
+- back-end .net core 3.0
+- front-end angular 8
+- authorization with JWT (JSON Web Tokens)
+- registration/login
+- SignalR for real-time document sharing
+- mutex in critical section of saving the document
+- persistance layer using ef core
+- unit tests using in-memory database and Moq library
+- 'your documents' view
+- creating new documents
+- editing existing documents
+- responsive ui
+- navigation arrows
+
+TODO:
+- printable version (to fix)
+- limit signalr clients connections to specific document
+- removing documents from db
+- add loader

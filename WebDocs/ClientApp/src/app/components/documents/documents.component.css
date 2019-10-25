@@ -1,6 +1,71 @@
+::ng-deep body {
+    background-color: #eee;
+}
+
 .document-list {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-start;
+}
+
+.card-doc {
+    width: 250px;
+    margin: 10px;
+    padding-top: 25px;
+}
+
+img {
+    max-width: 150px;
+    max-height: 150px;
+    background-size: cover;
+}
+
+.empty-header {
+    margin-bottom: 28px;
+}
+
+.mat-card-header .mat-card-title {
+    margin-bottom: 5px !important;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width:190px;
+}
+
+.mat-card-image:first-child {
+    margin-top: -5px !important;
+}
+
+.btn-section {
+    display: flex;
+    justify-content: space-between;
+}
+
+.mat-card-subtitle {
+    margin-bottom: 0px !important;
+}
+
+.note-add-icon {
+    font-size: 22px;
+    position: relative;
+    top: 4px;
+}
+
+.more-icon {
+    position: relative;
+    right: 13px;
+    bottom: 18px;
+    cursor: pointer;
+}
+
+.empty-list {
+    display: flex;
+    align-self: center;
+    position: relative;
+    left: 100px;
+}
+
+.empty-list p {
+    font-size: 20px;
 }

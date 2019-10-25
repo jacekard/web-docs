@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace WebDocs.Migrations
 {
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -187,7 +187,7 @@ namespace WebDocs.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Document",
+                name: "Documents",
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
@@ -200,9 +200,9 @@ namespace WebDocs.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Document", x => x.Id);
+                    table.PrimaryKey("PK_Documents", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Document_AspNetUsers_ApplicationUserId",
+                        name: "FK_Documents_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -258,8 +258,8 @@ namespace WebDocs.Migrations
                 column: "Expiration");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Document_ApplicationUserId",
-                table: "Document",
+                name: "IX_Documents_ApplicationUserId",
+                table: "Documents",
                 column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
@@ -294,7 +294,7 @@ namespace WebDocs.Migrations
                 name: "DeviceCodes");
 
             migrationBuilder.DropTable(
-                name: "Document");
+                name: "Documents");
 
             migrationBuilder.DropTable(
                 name: "PersistedGrants");

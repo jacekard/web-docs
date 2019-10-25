@@ -1,10 +1,11 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SignalRService } from 'src/app/services/signal-r.service';
 import { Cursor } from 'src/app/interfaces/cursor';
 import BalloonEditor from '@ckeditor/ckeditor5-build-balloon';
-import { WebDocument } from 'src/app/interfaces/webDocument';
 import { DocumentsService } from 'src/app/services/documents.service';
+import { WebDocument } from 'src/app/interfaces/webDocument';
+import * as $ from 'jquery';
 
 @Component({
   selector: 'app-workspace',
@@ -12,58 +13,68 @@ import { DocumentsService } from 'src/app/services/documents.service';
   styleUrls: ['./workspace.component.css']
 })
 export class WorkspaceComponent implements OnInit {
-  @ViewChild('document', { static: false }) private documentRef: ElementRef;
-  @ViewChild('page', {static: false}) private pageRef: ElementRef;
+  // @ViewChild('document', { static: false }) private documentRef: ElementRef;
+  // @ViewChild('page', {static: false}) private pageRef: ElementRef;
+
+  document: WebDocument;
+  title: string;
 
   constructor(
     private signalR: SignalRService,
     private route: ActivatedRoute,
+    private router: Router,
     private docsService: DocumentsService) { }
 
-  timeoutBeforeUpdateInMs = 20;
-  loadedContent: string;
-  myCursor: Cursor;
-  cursors: Cursor[];
-  cursorHtml: string;
-  document: WebDocument;
+  // myCursor: Cursor;
+  // cursors: Cursor[];
+  // cursorHtml: string;
 
   ngOnInit() {
     this.initWorkspace();
     this.initCkeEditor();
-    this.cursors = new Array<Cursor>();
-    this.myCursor = { userId: 0, positionX: 0, positionY: 0, offsetLeft: 0, offsetTop: 0 };
+    // this.cursors = new Array<Cursor>();
+    // this.myCursor = { userId: 0, positionX: 0, positionY: 0, offsetLeft: 0, offsetTop: 0 };
     this.registerConnections();
   }
 
   initWorkspace() {
     const id = this.route.snapshot.paramMap.get('id');
 
-    if (id == null || id == '#') {
-      console.log("new doc");
+    if (id == null) {
+      this.docsService.createNewDocument()
+      .then(p => p
+        .subscribe((doc) => {
+          this.document = doc;
+        }));
     }
     else {
-      this.docsService.getDocument(id).subscribe((doc) => this.document = doc);
+      this.docsService.getDocument(parseInt(id))
+      .then(p => p
+        .subscribe((doc) => {
+          this.document = doc;
+          this.title = this.document.name;
+          (<any>window).editor.setData(this.document.content);
+        }));
     }
   }
 
   registerConnections() {
-    this.signalR.registerHandler("docsModified", (username: string, message: string) => {
-      console.log(username, message);
-    })
     this.signalR.registerHandler("ReceiveDocumentContent", (content: string) => {
-      console.log(content);
+      this.document.content = content;
       (<any>window).editor.setData(content);
     })
-    this.signalR.registerHandler("updateCursorPosition", (cursor: Cursor) => {
-      // var offsetLeft = this.documentRef.nativeElement.offsetLeft;
-      // var offsetTop = this.documentRef.nativeElement.offsetTop;
-      // console.log({offsetLeft, offsetTop});
-      // cursor.positionX += offsetLeft;
-      // cursor.positionY += offsetTop;
 
-      // console.log(cursor);
-      // this.showCursors(cursor);
-    })
+    // TODO: 
+    // this.signalR.registerHandler("updateCursorPosition", (cursor: Cursor) => {
+    //   // var offsetLeft = this.documentRef.nativeElement.offsetLeft;
+    //   // var offsetTop = this.documentRef.nativeElement.offsetTop;
+    //   // console.log({offsetLeft, offsetTop});
+    //   // cursor.positionX += offsetLeft;
+    //   // cursor.positionY += offsetTop;
+
+    //   // console.log(cursor);
+    //   // this.showCursors(cursor);
+    // })
   }
 
   initCkeEditor() {
@@ -77,26 +88,25 @@ export class WorkspaceComponent implements OnInit {
     } );
   }
 
-  showCursors(cursor: Cursor) {
-    this.cursors.push(cursor);
-  }
-
   onKeydown(event) {
-    // TODO: change to 'Document' interface later.
-    setTimeout(() => {
-      this.signalR.send("updateDocumentContent", this.pageRef.nativeElement.outerHTML);
-    }, this.timeoutBeforeUpdateInMs);
+    this.updateDocument();
 
-    //this.signalR.send("pingCursorPosition", this.myCursor);
+    // TODO: add cursor positioning
   }
 
   updateDocument() {
-    // TODO: change to 'Document' interface later.
-    setTimeout(() => {
-      this.signalR.send("updateDocumentContent", (<any>window).editor.getData());
-    }, this.timeoutBeforeUpdateInMs);
+    this.document.content = (<any>window).editor.getData();
+    this.document.name = this.title;
+    this.signalR.send("updateDocumentContent", this.document);
   }
 
+  /* TODO: */
+  
+  // showCursors(cursor: Cursor) {
+  //   this.cursors.push(cursor);
+  // }
+  
+  /*
   sendCursorPosition(event) {
     var yOffset = 15;
     var offsetLeft = this.documentRef.nativeElement.offsetLeft;
@@ -114,5 +124,35 @@ export class WorkspaceComponent implements OnInit {
 
     console.log(this.myCursor);
     this.signalR.send("pingCursorPosition", this.myCursor);
+  } */
+
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    this.animateScrollTop();
+  }
+
+  onPageUp() {
+    $('html').animate({ scrollTop: 0 }, {
+      duration: 400,
+      queue: false,
+    }, "swing");
+  }
+
+  animateScrollTop() {
+    const scrollTop = $('.scroll-btn');
+    const windowOffset = window.pageYOffset;
+    const targetScaleInClass = windowOffset > 100 ? true : false;
+
+    if (!targetScaleInClass) {
+      scrollTop.addClass('scale-in');
+    }
+
+    if (targetScaleInClass) {
+      scrollTop.removeClass('scale-in');
+    }
+  }
+
+  redirect() {
+    this.router.navigateByUrl(`/documents`);
   }
 }

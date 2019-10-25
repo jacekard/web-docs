@@ -13,6 +13,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebDocs.Hubs;
 using WebDocs.Logic;
+using Serilog;
+using Serilog.Events;
 
 namespace WebDocs
 {
@@ -21,14 +23,19 @@ namespace WebDocs
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
         }
 
         public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite("Data Source=Database.db")
+            services.AddDbContext<ApplicationDbContext>(options => options
+                .UseLazyLoadingProxies()
+                .UseSqlite("Data Source=Database.db")
             );
 
             services.AddDefaultIdentity<ApplicationUser>()
@@ -43,8 +50,16 @@ namespace WebDocs
             services.AddRazorPages();
             services.AddSignalR();
 
-            services.AddTransient<IDocumentsProvider, DocumentsProvider>();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", policy =>
+                {
+                    policy.AllowAnyHeader().AllowAnyMethod();
+                });
+            });
 
+            services.AddTransient<IDocumentsProvider, DocumentsProvider>();
+            services.AddTransient<IUsersProvider, UsersProvider>();
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -74,7 +89,7 @@ namespace WebDocs
             }
 
             app.UseRouting();
-
+            app.UseCors();
             app.UseAuthentication();
             app.UseIdentityServer();
             app.UseAuthorization();
