@@ -27,14 +27,8 @@ namespace WebDocs.Hubs
             }
 
             mutex.WaitOne();
-            try
-            {
-                await docsProvider.SaveDocument(document);
-            }
-            finally
-            {
-                mutex.ReleaseMutex();
-            }
+            await docsProvider.SaveDocument(document);
+            mutex.ReleaseMutex();
         }
 
         public async Task UpdateDocumentContent(Document document)

@@ -33,7 +33,6 @@ export class DocumentsService {
   }
 
   deleteDocument(id: number) : Promise<any> {
-    /* TODO, naprawić. W obiekcie document nie ma userId i nie mapuje sie z kontrolerem [FromBody]...*/
     const token = this.authService.getAccessToken();
     let promise = new Promise<WebDocument>(function(resolve, reject) {});
     

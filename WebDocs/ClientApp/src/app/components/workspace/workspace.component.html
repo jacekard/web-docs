@@ -16,12 +16,11 @@
     <div class="d-flex justify-content-center non-printable">
         <div id="toolbar-container"></div>
     </div>
+    
 
     <div #document (click)="updateDocument()" spellcheck="false">
         <div>
-            <div id="editor" #page class="page" (keydown)="onKeydown($event)">
-                {{ loadedContent }}
-            </div>
+            <div id="editor" #page class="page" (keydown)="onKeydown($event)"></div>
         </div>
     </div>
 </div>
