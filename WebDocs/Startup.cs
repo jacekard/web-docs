@@ -15,6 +15,7 @@ using WebDocs.Hubs;
 using WebDocs.Logic;
 using Serilog;
 using Serilog.Events;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace WebDocs
 {
@@ -80,9 +81,13 @@ namespace WebDocs
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
-
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
             if (!env.IsDevelopment())
             {
                 app.UseSpaStaticFiles();

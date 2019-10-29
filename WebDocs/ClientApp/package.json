@@ -12,6 +12,7 @@
   },
   "private": true,
   "dependencies": {
+    "caniuse-lite": "1.0.30001004",
     "@angular/animations": "8.0.0",
     "@angular/cdk": "~8.2.3",
     "@angular/common": "8.0.0",
