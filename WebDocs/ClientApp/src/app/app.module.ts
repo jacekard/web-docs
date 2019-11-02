@@ -19,7 +19,6 @@ import { SafeHtml } from './pipes/safe-html';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material';
 import { DocumentsComponent } from './components/documents/documents.component';
-import { SingleDocComponent } from './components/documents/single-doc/single-doc.component';
 
 registerLocaleData(localePl);
 
@@ -30,8 +29,7 @@ registerLocaleData(localePl);
     HomeComponent,
     WorkspaceComponent,
     SafeHtml,
-    DocumentsComponent,
-    SingleDocComponent
+    DocumentsComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

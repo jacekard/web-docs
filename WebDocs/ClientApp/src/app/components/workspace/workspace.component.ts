@@ -60,7 +60,9 @@ export class WorkspaceComponent implements OnInit {
         .subscribe((doc) => {
           this.document = doc;
           this.title = this.document.name;
-          (<any>window).editor.setData(this.document.content);
+          if (this.document.content !== null) {
+            (<any>window).editor.setData(this.document.content);
+          }
         }));
     }
   }
@@ -111,7 +113,6 @@ export class WorkspaceComponent implements OnInit {
   initCkeEditor() {
     var editor = DecoupledEditor
     .create( document.querySelector( '#editor' ), {
-      removePlugins: [ 'ImageUpload', 'MediaEmbed' ],
     } )
     .then( editor => {
         const toolbarContainer = document.querySelector( '#toolbar-container' );
@@ -121,8 +122,6 @@ export class WorkspaceComponent implements OnInit {
     .catch( error => {
         console.error( error );
     } );
-
-    DecoupledEditor.builtinPlugins.map( plugin => console.log(plugin.pluginName));
   }
 
   onKeydown(event) {

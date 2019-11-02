@@ -7,7 +7,6 @@
 - saving/updating/deleting documents with signalR and REST
 - mutex in critical section of saving the document
 - persistance layer using ef core
-- unit tests using in-memory database and Moq library
 - 'your documents' view
 - creating new documents
 - editing existing documents
@@ -15,3 +14,14 @@
 - navigation arrows
 - loading screen while logging
 - printable version
+
+Sposoby sychronizacji:
+
+- zapisywanie do local storage aby było też offline
+- wznawianie połączenia przy signalr
+- sprawdzanie przy zapisie czy nie ma aktualniejszej wersji
+
+Co zrobić:
+
+- testy wydajnościowe (sprawdzić przy 5 osobach)
+- dodać rysowanie po signalr
