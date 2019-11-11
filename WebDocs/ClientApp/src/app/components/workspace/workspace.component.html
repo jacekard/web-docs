@@ -1,11 +1,4 @@
-
-
 <div class="workspace">
-    <!-- TODO: -->
-    <!-- <ng-container *ngFor="let c of cursors">
-        <div class="cursor" [style.left.px]="c.positionX" [style.top.px]="c.positionY">
-        </div>
-    </ng-container> -->
 
     <form #documentForm="ngForm" class="d-flex justify-content-center non-printable">
             <input class="form-control form-control-lg" type="text" name="title" placeholder="Name your document"
@@ -16,14 +9,14 @@
     <div class="d-flex justify-content-center non-printable">
         <div id="toolbar-container"></div>
     </div>
-<!--
+
     <div #document (click)="updateDocument()" spellcheck="false">
         <div>
             <div id="editor" #page class="page" (keydown)="onKeydown($event)">
-                {{ loadedContent }}
+                <!-- {{ loadedContent }} -->
             </div>
         </div>
-    </div> -->
+    </div>
 </div>
 
 <div class="nav-btn scroll-btn scale-in non-printable" (click)="onPageUp()">

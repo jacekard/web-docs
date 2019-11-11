@@ -64,9 +64,25 @@ namespace WebDocs.Hubs
             await Clients.OthersInGroup(groupName).SendAsync("EditorRemoved");
         }
 
-        public async Task PingCursorPosition(Cursor cursor)
+        public async Task Draw(DrawingData data)
         {
-            await Clients.Others.SendAsync("UpdateCursorPosition", cursor);
+            await Clients.Others.SendAsync("DrawFromHub", data);
+        }
+
+        public async Task AddToDrawingGroup(string drawingId)
+        {
+            var groupName = drawingId;
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+
+            await Clients.OthersInGroup(groupName).SendAsync("EditorAdded");
+        }
+
+        public async Task RemoveFromDrawingGroup(string drawingId)
+        {
+            var groupName = drawingId;
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+
+            await Clients.OthersInGroup(groupName).SendAsync("EditorRemoved");
         }
     }
 }

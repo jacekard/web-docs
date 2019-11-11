@@ -1,0 +1,20 @@
+<div class="workspace">
+    <form ngNativeValidate class="non-printable form-inline">
+        <div class="form-group mx-sm-3 mb-2">
+            <label for="brushRange">Brush size: </label>
+            <input type="range" class="custom-range" id="brushRange" min="0.5" max="20" step="0.5" name="brushSize"
+                (change)="changeBrushSize(event)" [(ngModel)]="brushSize">
+        </div>
+        <div class="form-group mx-sm-3 mb-2">
+            <input type="color" (change)="changeColor(event)" [(ngModel)]="brushColor" id="colorPicker" name="favcolor"
+                value="#ff0000">
+        </div>
+        <a #linkSaveImage (click)="saveImage()"><input type="submit" class="btn btn-dark" value="Save as png"></a>
+    </form>
+</div>
+
+<canvas #canvas></canvas>
+
+<div class="nav-btn redirect-button non-printable" (click)="redirect()">
+    <i class="material-icons icon"> arrow_back </i>
+</div>

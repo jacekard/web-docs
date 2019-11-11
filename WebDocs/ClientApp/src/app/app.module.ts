@@ -19,6 +19,7 @@ import { SafeHtml } from './pipes/safe-html';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material';
 import { DocumentsComponent } from './components/documents/documents.component';
+import { CanvasComponent } from './components/canvas/canvas.component';
 
 registerLocaleData(localePl);
 
@@ -29,7 +30,8 @@ registerLocaleData(localePl);
     HomeComponent,
     WorkspaceComponent,
     SafeHtml,
-    DocumentsComponent
+    DocumentsComponent,
+    CanvasComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -43,7 +45,8 @@ registerLocaleData(localePl);
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'workspace/new', component: WorkspaceComponent, canActivate: [AuthorizeGuard] },
       { path: 'workspace/:id', component: WorkspaceComponent, canActivate: [AuthorizeGuard] },
-      { path: 'documents', component: DocumentsComponent, canActivate: [AuthorizeGuard] }
+      { path: 'documents', component: DocumentsComponent, canActivate: [AuthorizeGuard] },
+      { path: 'drawing/:uuid', component: CanvasComponent, canActivate: [AuthorizeGuard] }
     ]),
     BrowserAnimationsModule,
     MatSnackBarModule

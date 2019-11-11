@@ -10,8 +10,22 @@
         </mat-card-header>
         <hr />
         <mat-card-content class="d-flex justify-content-center">
-            <button type="button" class="btn btn-lg btn-outline-primary" (click)="create()">
+            <button type="button" class="btn btn-lg btn-outline-primary" (click)="createDoc()">
                 Create new <i class="material-icons note-add-icon">note_add</i>
+            </button>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card class="card-doc">
+        <mat-card-header class="empty-header">
+            <mat-card-title>
+                Empty drawing
+            </mat-card-title>
+        </mat-card-header>
+        <hr />
+        <mat-card-content class="d-flex justify-content-center">
+            <button type="button" class="btn btn-lg btn-outline-info" (click)="createDrawing()">
+                Create new <i class="material-icons note-add-icon">brush</i>
             </button>
         </mat-card-content>
     </mat-card>

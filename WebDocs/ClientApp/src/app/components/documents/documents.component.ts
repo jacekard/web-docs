@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { DocumentsService } from 'src/app/services/documents.service';
 import { Router } from '@angular/router';
-import { WebDocument } from 'src/app/interfaces/webDocument';
+import { WebDocument } from 'src/app/interfaces/web-document';
+import { v4 as uuid } from 'uuid';
 
 @Component({
   selector: 'app-documents',
@@ -21,22 +22,27 @@ export class DocumentsComponent implements OnInit {
       response.subscribe(docs => this.documents = docs)));
   }
 
-  create() {
-    this.docsService.createNewDocument()
-    .then(p => p
-      .subscribe((doc) => {
-        this.router.navigateByUrl(`/workspace/${doc.id}`);
-      }));
+  createDrawing() {
+    this.router.navigateByUrl(`/drawing/${uuid()}`);
   }
 
-  edit(id: number) {
+  createDoc() {
+    this.docsService.createNewDocument()
+      .then(p => p
+        .subscribe((doc) => {
+          this.router.navigateByUrl(`/workspace/${doc.id}`);
+        }));
+  }
+
+  editDoc(id: number) {
     this.router.navigateByUrl(`/workspace/${id}`);
   }
 
-  delete(docId: number) {
+  deleteDoc(docId: number) {
+    console.log(docId);
     this.docsService.deleteDocument(docId).then(
       () => {
-        var index = this.documents.findIndex(function(doc) {
+        var index = this.documents.findIndex(function (doc) {
           return doc.id === docId;
         });
         if (index !== -1)
@@ -47,9 +53,9 @@ export class DocumentsComponent implements OnInit {
   showMenu(tooltip, docId: number) {
     if (tooltip.isOpen()) {
       tooltip.close();
-    } 
+    }
     else {
-      tooltip.open({docId});
+      tooltip.open({ docId });
     }
   }
 }

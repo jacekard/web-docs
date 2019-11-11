@@ -1,12 +1,10 @@
-import { Component, OnInit, ElementRef, ViewChild, HostListener, OnDestroy } from '@angular/core';
+import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SignalRService } from 'src/app/services/signal-r.service';
-import { Cursor } from 'src/app/interfaces/cursor';
 import DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document';
 import { DocumentsService } from 'src/app/services/documents.service';
-import { WebDocument } from 'src/app/interfaces/webDocument';
+import { WebDocument } from 'src/app/interfaces/web-document';
 import * as $ from 'jquery';
-import { HubConnectionState } from '@aspnet/signalr';
 import { SnackBarService } from 'src/app/services/snack-bar.service';
 
 @Component({
@@ -14,10 +12,7 @@ import { SnackBarService } from 'src/app/services/snack-bar.service';
   templateUrl: './workspace.component.html',
   styleUrls: ['./workspace.component.css']
 })
-export class WorkspaceComponent implements OnInit {
-  // @ViewChild('document', { static: false }) private documentRef: ElementRef;
-  // @ViewChild('page', {static: false}) private pageRef: ElementRef;
-
+export class WorkspaceComponent implements OnInit, OnDestroy {
   document: WebDocument;
   title: string;
 
@@ -28,15 +23,9 @@ export class WorkspaceComponent implements OnInit {
     private docsService: DocumentsService,
     private snackBar: SnackBarService) { }
 
-  // myCursor: Cursor;
-  // cursors: Cursor[];
-  // cursorHtml: string;
-
   ngOnInit() {
     this.initWorkspace();
     this.initCkeEditor();
-    // this.cursors = new Array<Cursor>();
-    // this.myCursor = { userId: 0, positionX: 0, positionY: 0, offsetLeft: 0, offsetTop: 0 };
     this.registerConnections();
     setTimeout(() => {
       this.AddToDocumentGroup();
@@ -80,19 +69,6 @@ export class WorkspaceComponent implements OnInit {
     this.signalR.registerHandler("EditorRemoved", () => {
       this.snackBar.open(`You are now sharing this document with others.`);
     })
-
-
-    // TODO: 
-    // this.signalR.registerHandler("updateCursorPosition", (cursor: Cursor) => {
-    //   // var offsetLeft = this.documentRef.nativeElement.offsetLeft;
-    //   // var offsetTop = this.documentRef.nativeElement.offsetTop;
-    //   // console.log({offsetLeft, offsetTop});
-    //   // cursor.positionX += offsetLeft;
-    //   // cursor.positionY += offsetTop;
-
-    //   // console.log(cursor);
-    //   // this.showCursors(cursor);
-    // })
   }
 
   AddToDocumentGroup() {
@@ -128,8 +104,6 @@ export class WorkspaceComponent implements OnInit {
     setTimeout(() => {
     this.updateDocument();
     }, 200);
-
-    // TODO: add cursor positioning
   }
 
   updateDocument() {
@@ -137,32 +111,6 @@ export class WorkspaceComponent implements OnInit {
     this.document.name = this.title;
     this.signalR.send("updateDocumentContent", this.document);
   }
-
-  /* TODO: */
-  
-  // showCursors(cursor: Cursor) {
-  //   this.cursors.push(cursor);
-  // }
-  
-  /*
-  sendCursorPosition(event) {
-    var yOffset = 15;
-    var offsetLeft = this.documentRef.nativeElement.offsetLeft;
-    var offsetTop = this.documentRef.nativeElement.offsetTop;
-
-    var x = event.pageX - offsetLeft;
-    var y = event.pageY - offsetTop - yOffset;
-    this.myCursor = { 
-      userId: 0, 
-      positionX: x, 
-      positionY: y, 
-      offsetLeft: offsetLeft, 
-      offsetTop: offsetTop
-    };
-
-    console.log(this.myCursor);
-    this.signalR.send("pingCursorPosition", this.myCursor);
-  } */
 
   @HostListener('window:scroll')
   onWindowScroll() {
