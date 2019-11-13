@@ -40,20 +40,13 @@ namespace WebDocs.Hubs
 
         public async Task UpdateDocumentContent(Document document)
         {
-            try
+            if (document == null)
             {
-                if (document == null)
-                {
-                    return;
-                }
+                return;
+            }
 
-                var groupName = document.Id.ToString();
-                await Clients.OthersInGroup(groupName).SendAsync("ReceiveDocumentContent", document.Content);
-            }
-            catch(Exception ex)
-            {
-                Log.Error(ex, "Error ocurred while updating document");
-            }
+            var groupName = document.Id.ToString();
+            await Clients.OthersInGroup(groupName).SendAsync("ReceiveDocumentContent", document.Content);
         }
 
         public async Task AddToDocumentGroup(long documentId)

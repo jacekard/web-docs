@@ -12,7 +12,6 @@ export class SignalRService {
 
   constructor(private snackBar: SnackBarService) {
     this.buildConnection();
-    this.startConnection();
 
     this.hubConnection.onclose(() => {
       setTimeout(function() {
@@ -34,21 +33,25 @@ export class SignalRService {
     .build();
   }
 
-  public startConnection = () => {
+  public startConnection() : Promise<void> {
     if(!this.hubConnection) {
       this.buildConnection();
     }
-    this.hubConnection
+    else if (this.hubConnection.state == signalR.HubConnectionState.Connected) {
+      return Promise.resolve();
+    }
+    return this.hubConnection
       .start()
       .catch(err => {
         if(this.initialConnection) {
           this.initialConnection = false;
           this.snackBar.open("Can't connect with the WebDocks server...", -1);
+          console.log(err);
         }
-        setTimeout(() => {
-          this.startConnection();
-        }, this.timeout);
-      });
+      //   setTimeout(() => {
+      //     this.startConnection();
+      //   }, this.timeout);
+       });
   }
 
   public connectionEstablished() : signalR.HubConnectionState {

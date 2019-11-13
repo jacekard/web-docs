@@ -6,6 +6,7 @@ import { DocumentsService } from 'src/app/services/documents.service';
 import { WebDocument } from 'src/app/interfaces/web-document';
 import * as $ from 'jquery';
 import { SnackBarService } from 'src/app/services/snack-bar.service';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-workspace',
@@ -16,21 +17,25 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
   document: WebDocument;
   title: string;
   processing: Boolean = false;
+  ckeditor: any;
 
   constructor(
     private signalR: SignalRService,
     private route: ActivatedRoute,
     private router: Router,
     private docsService: DocumentsService,
-    private snackBar: SnackBarService) { }
+    private snackBar: SnackBarService,
+    private spinner: NgxSpinnerService) { }
 
   ngOnInit() {
-    this.initWorkspace();
+    this.spinner.show();
     this.initCkeEditor();
-    this.registerConnections();
-    setTimeout(() => {
-      this.AddToDocumentGroup();
-    }, 1000);
+    this.signalR.startConnection().finally(() => {
+      this.initWorkspace();
+      this.registerConnections();
+      setTimeout(() => this.AddToDocumentGroup(), 300);
+      this.spinner.hide();
+    });
   }
 
   ngOnDestroy() {
@@ -46,21 +51,21 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     }
     else {
       this.docsService.getDocument(parseInt(id))
-      .then(p => p
-        .subscribe((doc) => {
-          this.document = doc;
-          this.title = this.document.name;
-          if (this.document.content !== null) {
-            (<any>window).editor.setData(this.document.content);
-          }
-        }));
+        .then(p => p
+          .subscribe((doc) => {
+            this.document = doc;
+            this.title = this.document.name;
+            if (this.document.content !== null) {
+              this.ckeditor.setData(this.document.content);
+            }
+          }));
     }
   }
 
   registerConnections() {
     this.signalR.registerHandler("ReceiveDocumentContent", (content: string) => {
       this.document.content = content;
-      (<any>window).editor.setData(content);
+      this.ckeditor.setData(content);
     });
 
     this.signalR.registerHandler("EditorAdded", () => {
@@ -81,36 +86,35 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
   }
 
   saveDocument() {
-    this.document.content = (<any>window).editor.getData();
+    this.document.content = this.ckeditor.getData();
     this.document.name = this.title;
     this.signalR.send("saveDocument", this.document);
   }
 
   initCkeEditor() {
-    var editor = DecoupledEditor
-    .create( document.querySelector( '#editor' ), {
-    } )
-    .then( editor => {
-        const toolbarContainer = document.querySelector( '#toolbar-container' );
-        toolbarContainer.appendChild( editor.ui.view.toolbar.element );
-        (<any>window).editor = editor;
-    } )
-    .catch( error => {
-        console.error( error );
-    } );
+    DecoupledEditor
+      .create(document.querySelector('#editor'), {
+      })
+      .then(editor => {
+        const toolbarContainer = document.querySelector('#toolbar-container');
+        toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+        this.ckeditor = editor;
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
   onKeydown(event) {
     setTimeout(() => {
-    this.updateDocument();
-    }, 200);
+      this.updateDocument();
+    }, 100);
   }
 
   updateDocument() {
-    this.document.content = (<any>window).editor.getData();
+    this.document.content = this.ckeditor.getData();
     this.document.name = this.title;
-    this.signalR.send("updateDocumentContent", this.document)
-    .catch((reason) => console.log("reason" + reason));
+    this.signalR.send("updateDocumentContent", this.document);
   }
 
   @HostListener('window:scroll')

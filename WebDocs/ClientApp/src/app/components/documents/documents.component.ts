@@ -40,7 +40,6 @@ export class DocumentsComponent implements OnInit {
   }
 
   deleteDoc(docId: number) {
-    console.log(docId);
     this.docsService.deleteDocument(docId).then(
       () => {
         var index = this.documents.findIndex(function (doc) {

@@ -5,6 +5,7 @@ import { SnackBarService } from 'src/app/services/snack-bar.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SignalRService } from 'src/app/services/signal-r.service';
 import { DrawingData } from 'src/app/interfaces/drawing-data';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-canvas',
@@ -29,20 +30,23 @@ export class CanvasComponent implements OnInit, OnDestroy {
   private title: string;
   private ctx: CanvasRenderingContext2D;
   brushSize: number = 1;
-  brushColor: string = '#000';
+  brushColor: string = '#000000';
 
   constructor(
     private signalR: SignalRService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: SnackBarService) { }
+    private snackBar: SnackBarService,
+    private spinner: NgxSpinnerService) { }
 
   ngOnInit() {
+    this.spinner.show();
     this.initWorkspace();
-    this.registerConnections();
-    setTimeout(() => {
+    this.signalR.startConnection().finally(() => {
+      this.registerConnections();
       this.AddToDocumentGroup();
-    }, 1000);
+      this.spinner.hide();
+    });
   }
 
   public ngAfterViewInit() {
@@ -101,7 +105,6 @@ export class CanvasComponent implements OnInit, OnDestroy {
     })
 
     this.signalR.registerHandler("ContextFromHub", (imageUrl) => {
-      console.log(imageUrl);
       this.createDrawingFromDataUrl(imageUrl, this.ctx);
     })
 
@@ -116,7 +119,6 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   sendDrawingDataUrl() {
     var url = this.canvas.toDataURL();
-    console.log(url);
     this.signalR.send("SendDrawingContext", this.uuid, url);
   }
 

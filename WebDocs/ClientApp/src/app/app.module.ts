@@ -21,6 +21,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material';
 import { DocumentsComponent } from './components/documents/documents.component';
 import { CanvasComponent } from './components/canvas/canvas.component';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 registerLocaleData(localePl);
 
@@ -51,7 +52,8 @@ registerLocaleData(localePl);
     ]),
     BrowserAnimationsModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    NgxSpinnerModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },
