@@ -15,6 +15,7 @@ import { SnackBarService } from 'src/app/services/snack-bar.service';
 export class WorkspaceComponent implements OnInit, OnDestroy {
   document: WebDocument;
   title: string;
+  processing: Boolean = false;
 
   constructor(
     private signalR: SignalRService,
@@ -67,7 +68,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     });
 
     this.signalR.registerHandler("EditorRemoved", () => {
-      this.snackBar.open(`You are now sharing this document with others.`);
+      this.snackBar.open(`Editor has left.`);
     })
   }
 
@@ -83,7 +84,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     this.document.content = (<any>window).editor.getData();
     this.document.name = this.title;
     this.signalR.send("saveDocument", this.document);
-    this.snackBar.open("Work saved!", 2000);
   }
 
   initCkeEditor() {
@@ -109,7 +109,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
   updateDocument() {
     this.document.content = (<any>window).editor.getData();
     this.document.name = this.title;
-    this.signalR.send("updateDocumentContent", this.document);
+    this.signalR.send("updateDocumentContent", this.document)
+    .catch((reason) => console.log("reason" + reason));
   }
 
   @HostListener('window:scroll')

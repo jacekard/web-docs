@@ -13,7 +13,11 @@ import { DrawingData } from 'src/app/interfaces/drawing-data';
 })
 export class CanvasComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', { static: true })
-  canvas: ElementRef<HTMLCanvasElement>;
+  canvasRef: ElementRef<HTMLCanvasElement>;
+
+  get canvas(): HTMLCanvasElement {
+    return this.canvasRef.nativeElement;
+  }
 
   @ViewChild('linkSaveImage', { static: true })
   linkSaveImage: ElementRef<any>;
@@ -42,16 +46,15 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   public ngAfterViewInit() {
-    const canvasEl: HTMLCanvasElement = this.canvas.nativeElement;
-    this.ctx = canvasEl.getContext('2d');
+    this.ctx = this.canvas.getContext('2d');
 
-    canvasEl.width = this.width;
-    canvasEl.height = this.height;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
 
     this.ctx.lineCap = 'round';
     this.ctx.imageSmoothingEnabled = true;
     this.changeColor();
-    this.captureEvents(canvasEl);
+    this.captureEvents(this.canvas);
   }
 
   changeBrushSize(size: number = this.brushSize) {
@@ -90,17 +93,39 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
     this.signalR.registerHandler("EditorAdded", () => {
       this.snackBar.open(`You are now sharing this document with others.`);
+      this.sendDrawingDataUrl();
     });
 
     this.signalR.registerHandler("EditorRemoved", () => {
-      this.snackBar.open(`You are now sharing this document with others.`);
+      this.snackBar.open(`Editor has left.`);
+    })
+
+    this.signalR.registerHandler("ContextFromHub", (imageUrl) => {
+      console.log(imageUrl);
+      this.createDrawingFromDataUrl(imageUrl, this.ctx);
+    })
+
+    this.signalR.registerHandler("EraseDrawing", () => {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     })
   }
 
   sendDrawing(data: DrawingData) {
-    console.log(data);
-
     this.signalR.send("Draw", data);
+  }
+
+  sendDrawingDataUrl() {
+    var url = this.canvas.toDataURL();
+    console.log(url);
+    this.signalR.send("SendDrawingContext", this.uuid, url);
+  }
+
+  createDrawingFromDataUrl(url: any, ctx: any) {
+    var img = new Image();
+    img.src = url;
+    img.onload = function () {
+      ctx.drawImage(img, 0, 0);
+    };
   }
 
   saveImage() {
@@ -110,9 +135,13 @@ export class CanvasComponent implements OnInit, OnDestroy {
     } else {
       link.setAttribute('download', `Untitled.png`);
     }
-    console.log(link);
-    link.setAttribute('href', this.canvas.nativeElement.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+    link.setAttribute('href', this.canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
     link.click();
+  }
+
+  erase() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.signalR.send("EraseDrawing", this.uuid);
   }
 
   private captureEvents(canvasEl: HTMLCanvasElement) {

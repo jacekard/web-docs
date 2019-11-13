@@ -11,19 +11,35 @@ export class SignalRService {
   private hubConnection: signalR.HubConnection
 
   constructor(private snackBar: SnackBarService) {
-    this.hubConnection = new signalR.HubConnectionBuilder()
-                              .withUrl('/hub')
-                              .build();
-
+    this.buildConnection();
     this.startConnection();
+
     this.hubConnection.onclose(() => {
-      this.snackBar.open("Refresh page to enable live reloading.", -1);
+      setTimeout(function() {
+        if(!this.hubConnection) {
+          this.hubConnection = new signalR.HubConnectionBuilder()
+          .withUrl('/hub')
+          .build();
+        }
+        this.hubConnection.start();
+        console.log("reconnecting to hub.");
+    }, 10);
+      console.log("disconnected from hub.");
     });
   }
 
+  public buildConnection() {
+    this.hubConnection = new signalR.HubConnectionBuilder()
+    .withUrl('/hub')
+    .build();
+  }
+
   public startConnection = () => {
+    if(!this.hubConnection) {
+      this.buildConnection();
+    }
     this.hubConnection
-      .start()  
+      .start()
       .catch(err => {
         if(this.initialConnection) {
           this.initialConnection = false;
@@ -47,7 +63,7 @@ export class SignalRService {
     this.hubConnection.off(methodName, method);
   }
 
-  public send(methodName: string, ...args: any[]): void {
-    this.hubConnection.send(methodName, ...args);
+  public send(methodName: string, ...args: any[]): Promise<void> {
+    return this.hubConnection.send(methodName, ...args);
   }
 }

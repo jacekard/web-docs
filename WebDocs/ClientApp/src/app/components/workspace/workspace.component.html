@@ -12,8 +12,7 @@
 
     <div #document (click)="updateDocument()" spellcheck="false">
         <div>
-            <div id="editor" #page class="page" (keydown)="onKeydown($event)">
-                <!-- {{ loadedContent }} -->
+            <div id="editor" #page class="page" (keydown)="onKeydown($event)" >
             </div>
         </div>
     </div>
@@ -33,3 +32,9 @@
 <div class="nav-btn save-button non-printable" (click)="saveDocument()" placement="bottom" ngbTooltip="Remember to save your work after you finish!">
     <i class="material-icons icon">save</i>
 </div>
+
+<ng-template #loading>
+    <div>
+        <mat-spinner></mat-spinner>
+    </div>
+</ng-template>

@@ -7,6 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { registerLocaleData } from '@angular/common';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import localePl from '@angular/common/locales/pl';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -49,7 +50,8 @@ registerLocaleData(localePl);
       { path: 'drawing/:uuid', component: CanvasComponent, canActivate: [AuthorizeGuard] }
     ]),
     BrowserAnimationsModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatProgressSpinnerModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },

@@ -49,7 +49,12 @@ namespace WebDocs
                 .AddIdentityServerJwt();
             services.AddControllersWithViews();
             services.AddRazorPages();
-            services.AddSignalR();
+            services.AddSignalR(hub =>
+            {
+                hub.EnableDetailedErrors = true;
+                //hub.
+                hub.MaximumReceiveMessageSize = 1024 * 1024 * 50; // 5MB
+            });
 
             services.AddCors(options =>
             {

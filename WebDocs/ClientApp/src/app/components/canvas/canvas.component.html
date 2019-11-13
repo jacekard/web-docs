@@ -9,7 +9,11 @@
             <input type="color" (change)="changeColor(event)" [(ngModel)]="brushColor" id="colorPicker" name="favcolor"
                 value="#ff0000">
         </div>
+        <div class="form-group mx-sm-3 mb-2">
+
         <a #linkSaveImage (click)="saveImage()"><input type="submit" class="btn btn-dark" value="Save as png"></a>
+        <input type="submit" class="btn btn-warning" (click)="erase()" value="Erase">
+    </div>
     </form>
 </div>
 

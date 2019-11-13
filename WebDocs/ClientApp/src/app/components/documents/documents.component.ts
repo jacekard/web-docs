@@ -23,7 +23,8 @@ export class DocumentsComponent implements OnInit {
   }
 
   createDrawing() {
-    this.router.navigateByUrl(`/drawing/${uuid()}`);
+    let id = uuid();
+    this.router.navigateByUrl(`/drawing/${id}`);
   }
 
   createDoc() {
