@@ -41,9 +41,9 @@ namespace WebDocs.Logic
         {
             var document = await this.dbContext.Documents.FirstOrDefaultAsync(x => x.Id == docId) ?? new Document();
             document.UserId = userId;
-            
-            await this.SaveDocument(document);
-            
+
+            this.SaveDocument(document);
+
             return document;
         }
 
@@ -54,32 +54,31 @@ namespace WebDocs.Logic
             this.dbContext.SaveChanges();
         }
 
-        public async Task SaveDocument(Document document)
+        public void SaveDocument(Document document)
         {
             try
             {
+                document.LastModifiedDate = DateTime.Now;
 
-            document.LastModifiedDate = DateTime.Now;
-
-            var entity = this.dbContext.Documents.Find(document.Id);
-            if (entity == null)
-            {
-                await this.dbContext.Documents.AddAsync(document);
-                var user = await this.dbContext.Users.FindAsync(document.UserId);
-                user.Documents.Add(document);
-            }
-            else
-            {
-                var user = await this.dbContext.Users.FindAsync(document.UserId);
-                var userDocument = user.Documents.FirstOrDefault(x => x.Id == document.Id);
-                if (userDocument == null)
+                var entity = this.dbContext.Documents.Find(document.Id);
+                if (entity == null)
                 {
+                    this.dbContext.Documents.Add(document);
+                    var user = this.dbContext.Users.Find(document.UserId);
                     user.Documents.Add(document);
                 }
-                this.dbContext.Entry(entity).CurrentValues.SetValues(document);
-            }
+                else
+                {
+                    var user = this.dbContext.Users.Find(document.UserId);
+                    var userDocument = user.Documents.FirstOrDefault(x => x.Id == document.Id);
+                    if (userDocument == null)
+                    {
+                        user.Documents.Add(document);
+                    }
+                    this.dbContext.Entry(entity).CurrentValues.SetValues(document);
+                }
 
-            await this.dbContext.SaveChangesAsync();
+                this.dbContext.SaveChanges();
             }
             catch (Exception ex)
             {

@@ -65,7 +65,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
   registerConnections() {
     this.signalR.registerHandler("ReceiveDocumentContent", (content: string) => {
       this.document.content = content;
+      this.spinner.show();
       this.ckeditor.setData(content);
+      this.spinner.hide();
     });
 
     this.signalR.registerHandler("EditorAdded", () => {
@@ -88,7 +90,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
   saveDocument() {
     this.document.content = this.ckeditor.getData();
     this.document.name = this.title;
-    this.signalR.send("saveDocument", this.document);
+    this.spinner.show();
+    this.signalR.send("saveDocument", this.document).finally(() => this.spinner.hide());
   }
 
   initCkeEditor() {
@@ -105,16 +108,27 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
       });
   }
 
-  onKeydown(event) {
+  onKeyup(event) {
+    console.log("pressed key");
     setTimeout(() => {
       this.updateDocument();
-    }, 100);
+    }, 1);
   }
 
   updateDocument() {
+    this.getEditorData().then(() => this.spinner.show()).finally(() => console.log("pobralem dane"));
+    
+    this.signalR.send("updateDocumentContent", this.document)
+    .finally(() => {
+        this.spinner.hide();
+      });
+  }
+
+  getEditorData() : Promise<void> {
     this.document.content = this.ckeditor.getData();
     this.document.name = this.title;
-    this.signalR.send("updateDocumentContent", this.document);
+
+    return Promise.resolve();
   }
 
   @HostListener('window:scroll')
