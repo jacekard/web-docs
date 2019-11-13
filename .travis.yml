@@ -7,59 +7,24 @@ env:
   - CI_USER=deploy
   - KEY_FILE=deploy_key
   - CONTAINER_NAME=webdoc
-
 branches:
   only:
   - master
-
 services:
 - docker
-
 before_install:
-  - openssl aes-256-cbc -K $encrypted_4ff76aa56d60_key -iv $encrypted_4ff76aa56d60_iv -in out.pfx.enc -out WebDocs/out.pfx -d
-  - openssl aes-256-cbc -K ${encrypted_5b1b7de2a19f_key} -iv ${encrypted_5b1b7de2a19f_iv} -in deploy_key.enc -out deploy_key -d
-  - eval "$(ssh-agent -s)"
-  - chmod 600 ./$KEY_FILE
-  - echo -e "Host $SERVER_IP\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-  - ssh-add ./$KEY_FILE
-
+- openssl aes-256-cbc -K $encrypted_5704401eb47b_key -iv $encrypted_5704401eb47b_iv -in secrets.tar.enc -out secrets.tar -d
+- tar xvf secrets.tar
+- eval "$(ssh-agent -s)"
+- chmod 600 ./$KEY_FILE
+- echo -e "Host $SERVER_IP\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+- ssh-add ./$KEY_FILE
 script:
 - cd WebDocs
+- mv ../cert.pfx ./cert.pfx
 - docker build -t $IMAGE_NAME .
 - docker save -o ../temp.tar $IMAGE_NAME
 - cd ../
 - scp -i ./$KEY_FILE -P $SERVER_PORT ./temp.tar $CI_USER@$SERVER_IP:~/temp.tar
-- ssh -T -i ./$KEY_FILE -p $SERVER_PORT $CI_USER@$SERVER_IP "bash -s" < ops/deploy.sh $CONTAINER_NAME $IMAGE_NAME
-
-# stages:
-#   - prepare
-#   - build
-#   - publish
-#   - deploy
-    # if: branch = master
-
-# stages:
-#   -
-#   - build_image
-#   - name: deploy
-#     if: branch = master
-# jobs:
-#   include:
-#     -stage:
-# jobs:
-#   include:
-#     - name: "Prepare environment"
-#       stage: "prepare"
-#       script: 'ops/prepare.sh'
-
-#     - name: "Build application"
-#       stage: "build"
-#       script: 'ops/build.sh'
-
-#     - name: "Publish artifacts on server"
-#       stage: "publish"
-#       script: 'ops/publish.sh'
-
-#     - name: "Deploy application on server"
-#       stage: "deploy"
-#       script: 'cat ops/deploy.sh | ssh -i ../$KEY_FILE -p $SERVER_PORT $CI_USER@$SERVER_IP'
+- ssh -T -i ./$KEY_FILE -p $SERVER_PORT $CI_USER@$SERVER_IP "bash -s" < ops/deploy.sh
+  $CONTAINER_NAME $IMAGE_NAME

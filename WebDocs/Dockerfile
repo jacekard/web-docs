@@ -23,6 +23,8 @@ FROM build AS publish
 ARG PROJECT_PLATFORM
 ARG PROJECT_NAME
 ARG CONFIG_MODE
+RUN dotnet tool install --global dotnet-ef
+RUN /root/.dotnet/tools/dotnet-ef database update
 RUN dotnet publish "$PROJECT_NAME.csproj" -c $CONFIG_MODE -o /app -r $PROJECT_PLATFORM
 
 FROM runtime AS final
@@ -34,8 +36,8 @@ ENV ASPNETCORE_URLS=http://+:$PORT
 ENV ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT
 WORKDIR /app
 COPY --from=publish /app .
-COPY out.pf* /app/cert.pfx
-COPY Database.db /app/Database.db
+COPY cert.pfx /app/cert.pfx
+COPY --from=publish src/Database.db /app/Database.db
 RUN adduser -D aspnetcore
 RUN chown aspnetcore:aspnetcore -R /app
 USER aspnetcore
