@@ -56,6 +56,9 @@ namespace WebDocs.Logic
 
         public async Task SaveDocument(Document document)
         {
+            try
+            {
+
             document.LastModifiedDate = DateTime.Now;
 
             var entity = this.dbContext.Documents.Find(document.Id);
@@ -77,6 +80,11 @@ namespace WebDocs.Logic
             }
 
             await this.dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error occured while saving document");
+            }
         }
     }
 }

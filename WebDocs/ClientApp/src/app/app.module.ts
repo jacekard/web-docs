@@ -7,6 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { registerLocaleData } from '@angular/common';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import localePl from '@angular/common/locales/pl';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -19,7 +20,8 @@ import { SafeHtml } from './pipes/safe-html';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material';
 import { DocumentsComponent } from './components/documents/documents.component';
-import { SingleDocComponent } from './components/documents/single-doc/single-doc.component';
+import { CanvasComponent } from './components/canvas/canvas.component';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 registerLocaleData(localePl);
 
@@ -31,7 +33,7 @@ registerLocaleData(localePl);
     WorkspaceComponent,
     SafeHtml,
     DocumentsComponent,
-    SingleDocComponent
+    CanvasComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -45,10 +47,13 @@ registerLocaleData(localePl);
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'workspace/new', component: WorkspaceComponent, canActivate: [AuthorizeGuard] },
       { path: 'workspace/:id', component: WorkspaceComponent, canActivate: [AuthorizeGuard] },
-      { path: 'documents', component: DocumentsComponent, canActivate: [AuthorizeGuard] }
+      { path: 'documents', component: DocumentsComponent, canActivate: [AuthorizeGuard] },
+      { path: 'drawing/:uuid', component: CanvasComponent, canActivate: [AuthorizeGuard] }
     ]),
     BrowserAnimationsModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    NgxSpinnerModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },

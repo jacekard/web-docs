@@ -79,6 +79,12 @@
     <ItemGroup>
         <BrowsersListNodeJsFiles Include="$(TempFolder)\WebCompiler*\node_modules\browserslist\node.js" />
     </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Data\Migrations\20191111113540_Documents.cs" />
+      <Compile Remove="Data\Migrations\20191111113540_Documents.Designer.cs" />
+      <Compile Remove="Data\Migrations\20191111115452_DOcument.cs" />
+      <Compile Remove="Data\Migrations\20191111115452_DOcument.Designer.cs" />
+    </ItemGroup>
     <Target Name="BrowsersListWarningsAsInfo" BeforeTargets="WebCompile">
         <FileUpdate Files="@(BrowsersListNodeJsFiles)" Regex="console.warn" ReplacementText="console.log" />
     </Target>

@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace WebDocs.Models
 {
-    public class Document
+    public class Drawing
     {
-        public long Id { get; set; }
+        public int DrawingId { get; set; }
 
-        [NotMapped]
         public string UserId { get; set; }
-
-        public string Name { get; set; }
-
-        public string Content { get; set; }
 
         public DateTime CreationDate { get; set; } = DateTime.Now;
 
