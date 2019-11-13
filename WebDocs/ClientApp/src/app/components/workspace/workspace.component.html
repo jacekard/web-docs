@@ -10,9 +10,10 @@
         <div id="toolbar-container"></div>
     </div>
 
-    <div #document (click)="updateDocument()" spellcheck="false">
+    <!-- (click)="updateDocument()" -->
+    <div #document spellcheck="false">
         <div>
-            <div id="editor" #page class="page" (keydown)="onKeydown($event)" >
+            <div id="editor" #page class="page" (keyup)="onKeyup($event)" >
             </div>
         </div>
     </div>

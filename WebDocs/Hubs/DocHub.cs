@@ -13,28 +13,23 @@ namespace WebDocs.Hubs
     {
         private readonly IDocumentsProvider docsProvider;
 
-        private readonly Mutex mutex = new Mutex();
+        private static readonly object syncLock = new object();
 
         public DocHub(IDocumentsProvider docsProvider)
         {
             this.docsProvider = docsProvider;
         }
 
-        public async Task SaveDocument(Document document)
+        public void SaveDocument(Document document)
         {
             if (document == null)
             {
                 return;
             }
 
-            mutex.WaitOne();
-            try
+            lock (syncLock)
             {
-                await docsProvider.SaveDocument(document);
-            }
-            finally
-            {
-                mutex.ReleaseMutex();
+                docsProvider.SaveDocument(document);
             }
         }
 
@@ -55,7 +50,7 @@ namespace WebDocs.Hubs
 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
-            await Clients.OthersInGroup(groupName).SendAsync("EditorAdded");
+            await Clients.Group(groupName).SendAsync("EditorAdded");
         }
 
         public async Task RemoveFromDocumentGroup(long documentId)
@@ -63,12 +58,14 @@ namespace WebDocs.Hubs
             var groupName = documentId.ToString();
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
 
-            await Clients.OthersInGroup(groupName).SendAsync("EditorRemoved");
+            await Clients.Group(groupName).SendAsync("EditorRemoved");
         }
 
-        public async Task Draw(DrawingData data)
+        public async Task Draw(string drawingId, DrawingData data)
         {
-            await Clients.Others.SendAsync("DrawFromHub", data);
+            var groupName = drawingId;
+
+            await Clients.OthersInGroup(groupName).SendAsync("DrawFromHub", data);
         }
 
         public async Task AddToDrawingGroup(string drawingId)
@@ -76,7 +73,7 @@ namespace WebDocs.Hubs
             var groupName = drawingId;
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
-            await Clients.OthersInGroup(groupName).SendAsync("EditorAdded");
+            await Clients.Group(groupName).SendAsync("EditorAdded");
         }
 
         public async Task RemoveFromDrawingGroup(string drawingId)
@@ -84,7 +81,7 @@ namespace WebDocs.Hubs
             var groupName = drawingId;
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
 
-            await Clients.OthersInGroup(groupName).SendAsync("EditorRemoved");
+            await Clients.Group(groupName).SendAsync("EditorRemoved");
         }
 
         public async Task SendDrawingContext(string drawingId, object imageUrl)

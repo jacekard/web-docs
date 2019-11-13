@@ -105,7 +105,8 @@ export class CanvasComponent implements OnInit, OnDestroy {
     })
 
     this.signalR.registerHandler("ContextFromHub", (imageUrl) => {
-      this.createDrawingFromDataUrl(imageUrl, this.ctx);
+      this.spinner.show();
+      this.createDrawingFromDataUrl(imageUrl, this.ctx).finally(() => this.spinner.hide());
     })
 
     this.signalR.registerHandler("EraseDrawing", () => {
@@ -114,7 +115,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   sendDrawing(data: DrawingData) {
-    this.signalR.send("Draw", data);
+    this.signalR.send("Draw", this.uuid, data);
   }
 
   sendDrawingDataUrl() {
@@ -122,12 +123,13 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.signalR.send("SendDrawingContext", this.uuid, url);
   }
 
-  createDrawingFromDataUrl(url: any, ctx: any) {
+  createDrawingFromDataUrl(url: any, ctx: any) : Promise<void> {
     var img = new Image();
     img.src = url;
     img.onload = function () {
       ctx.drawImage(img, 0, 0);
     };
+    return Promise.resolve();
   }
 
   saveImage() {

@@ -16,6 +16,7 @@ using WebDocs.Logic;
 using Serilog;
 using Serilog.Events;
 using Microsoft.AspNetCore.HttpOverrides;
+using System;
 
 namespace WebDocs
 {
@@ -52,8 +53,9 @@ namespace WebDocs
             services.AddSignalR(hub =>
             {
                 hub.EnableDetailedErrors = true;
-                //hub.
-                hub.MaximumReceiveMessageSize = 1024 * 1024 * 50; // 5MB
+                hub.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
+                hub.KeepAliveInterval = TimeSpan.FromMinutes(1);
+                hub.MaximumReceiveMessageSize = 1024 * 1024 * 50; // 50 MB
             });
 
             services.AddCors(options =>

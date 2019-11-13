@@ -12,7 +12,7 @@ namespace WebDocs.Logic
 
         Task<Document> GetDocument(string userId, long docId);
 
-        Task SaveDocument(Document document);
+        void SaveDocument(Document document);
 
         Task DeleteDocument(string userId, long docId);
     }

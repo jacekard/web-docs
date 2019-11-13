@@ -6,7 +6,7 @@ import { SnackBarService } from './snack-bar.service';
   providedIn: 'root'
 })
 export class SignalRService {
-  timeout = 5000;
+  timeout = 120000; // 120 seconds
   initialConnection = true;
   private hubConnection: signalR.HubConnection
 
@@ -14,17 +14,17 @@ export class SignalRService {
     this.buildConnection();
 
     this.hubConnection.onclose(() => {
-      setTimeout(function() {
-        if(!this.hubConnection) {
-          this.hubConnection = new signalR.HubConnectionBuilder()
-          .withUrl('/hub')
-          .build();
-        }
-        this.hubConnection.start();
+      setTimeout(() => this.startSignalRConnection(), 2000);
         console.log("reconnecting to hub.");
-    }, 10);
-      console.log("disconnected from hub.");
     });
+
+    this.hubConnection.serverTimeoutInMilliseconds = this.timeout; 
+  }
+
+  startSignalRConnection() {
+    this.hubConnection.start()
+    .then(() => console.info('Websocket Connection Established'))
+    .catch(err => console.error('SignalR Connection Error: ', err));
   }
 
   public buildConnection() {
@@ -48,9 +48,6 @@ export class SignalRService {
           this.snackBar.open("Can't connect with the WebDocks server...", -1);
           console.log(err);
         }
-      //   setTimeout(() => {
-      //     this.startConnection();
-      //   }, this.timeout);
        });
   }
 
