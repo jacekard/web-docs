@@ -1,11 +1,4 @@
-
-
 <div class="workspace">
-    <!-- TODO: -->
-    <!-- <ng-container *ngFor="let c of cursors">
-        <div class="cursor" [style.left.px]="c.positionX" [style.top.px]="c.positionY">
-        </div>
-    </ng-container> -->
 
     <form #documentForm="ngForm" class="d-flex justify-content-center non-printable">
             <input class="form-control form-control-lg" type="text" name="title" placeholder="Name your document"
@@ -17,9 +10,10 @@
         <div id="toolbar-container"></div>
     </div>
 
-    <div #document (click)="updateDocument()" spellcheck="false">
+    <div #document spellcheck="false">
         <div>
-            <div id="editor" #page class="page" (keydown)="onKeydown($event)"></div>
+            <div id="editor" #page class="page" (keyup)="onKeyup($event)" >
+            </div>
         </div>
     </div>
 </div>
@@ -38,3 +32,16 @@
 <div class="nav-btn save-button non-printable" (click)="saveDocument()" placement="bottom" ngbTooltip="Remember to save your work after you finish!">
     <i class="material-icons icon">save</i>
 </div>
+
+<ng-template #loading>
+    <div>
+        <mat-spinner></mat-spinner>
+    </div>
+</ng-template>
+
+<ngx-spinner
+  bdColor="rgba(51,51,51,0.8)"
+  size="large"
+  color="#fff"
+  type="square-jelly-box">
+</ngx-spinner>

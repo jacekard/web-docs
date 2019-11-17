@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using WebDocs.Data;
@@ -14,8 +11,8 @@ using Microsoft.Extensions.Hosting;
 using WebDocs.Hubs;
 using WebDocs.Logic;
 using Serilog;
-using Serilog.Events;
 using Microsoft.AspNetCore.HttpOverrides;
+using System;
 
 namespace WebDocs
 {
@@ -35,8 +32,8 @@ namespace WebDocs
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options => options
-                .UseLazyLoadingProxies()
-                .UseSqlite("Data Source=Database.db")
+                //.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                .UseSqlite(Configuration.GetConnectionString("SQLite"))
             );
 
             services.AddDefaultIdentity<ApplicationUser>()
@@ -47,9 +44,15 @@ namespace WebDocs
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddRazorPages();
-            services.AddSignalR();
+            services.AddSignalR(hub =>
+            {
+                hub.EnableDetailedErrors = true;
+                hub.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
+                hub.KeepAliveInterval = TimeSpan.FromMinutes(1);
+                hub.MaximumReceiveMessageSize = 1024 * 1024 * 50; // 50 MB
+            });
 
             services.AddCors(options =>
             {

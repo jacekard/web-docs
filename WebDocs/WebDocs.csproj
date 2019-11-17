@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="3.0.0" />
@@ -20,7 +21,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0" />
@@ -78,6 +78,21 @@
     </PropertyGroup>
     <ItemGroup>
         <BrowsersListNodeJsFiles Include="$(TempFolder)\WebCompiler*\node_modules\browserslist\node.js" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Data\Migrations\20191117115834_InitialMigration.cs" />
+      <Compile Remove="Data\Migrations\20191117115834_InitialMigration.Designer.cs" />
+      <Compile Remove="Data\Migrations\20191117132043_UserDocumentMigration.cs" />
+      <Compile Remove="Data\Migrations\20191117132043_UserDocumentMigration.Designer.cs" />
+      <Compile Remove="Data\Migrations\20191117133036_asd.cs" />
+      <Compile Remove="Data\Migrations\20191117133036_asd.Designer.cs" />
+      <Compile Remove="Data\Migrations\20191117141453_InitialMigration.cs" />
+      <Compile Remove="Data\Migrations\20191117141453_InitialMigration.Designer.cs" />
+      <Compile Remove="Data\Migrations\20191117143423_SqliteMigration.cs" />
+      <Compile Remove="Data\Migrations\20191117143423_SqliteMigration.Designer.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Data\Migrations\" />
     </ItemGroup>
     <Target Name="BrowsersListWarningsAsInfo" BeforeTargets="WebCompile">
         <FileUpdate Files="@(BrowsersListNodeJsFiles)" Regex="console.warn" ReplacementText="console.log" />

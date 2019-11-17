@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using WebDocs.Logic;
@@ -12,23 +13,24 @@ namespace WebDocs.Hubs
     {
         private readonly IDocumentsProvider docsProvider;
 
-        private readonly Mutex mutex = new Mutex();
+        private static readonly object syncLock = new object();
 
         public DocHub(IDocumentsProvider docsProvider)
         {
             this.docsProvider = docsProvider;
         }
 
-        public async Task SaveDocument(Document document)
+        public void SaveDocument(Document document)
         {
             if (document == null)
             {
                 return;
             }
 
-            mutex.WaitOne();
-            await docsProvider.SaveDocument(document);
-            mutex.ReleaseMutex();
+            lock (syncLock)
+            {
+                docsProvider.SaveDocument(document);
+            }
         }
 
         public async Task UpdateDocumentContent(Document document)
@@ -45,9 +47,10 @@ namespace WebDocs.Hubs
         public async Task AddToDocumentGroup(long documentId)
         {
             var groupName = documentId.ToString();
+
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
-            await Clients.OthersInGroup(groupName).SendAsync("EditorAdded");
+            await Clients.Group(groupName).SendAsync("EditorAdded");
         }
 
         public async Task RemoveFromDocumentGroup(long documentId)
@@ -55,12 +58,44 @@ namespace WebDocs.Hubs
             var groupName = documentId.ToString();
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
 
-            await Clients.OthersInGroup(groupName).SendAsync("EditorRemoved");
+            await Clients.Group(groupName).SendAsync("EditorRemoved");
         }
 
-        public async Task PingCursorPosition(Cursor cursor)
+        public async Task Draw(string drawingId, DrawingData data)
         {
-            await Clients.Others.SendAsync("UpdateCursorPosition", cursor);
+            var groupName = drawingId;
+
+            await Clients.OthersInGroup(groupName).SendAsync("DrawFromHub", data);
+        }
+
+        public async Task AddToDrawingGroup(string drawingId)
+        {
+            var groupName = drawingId;
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+
+            await Clients.Group(groupName).SendAsync("EditorAdded");
+        }
+
+        public async Task RemoveFromDrawingGroup(string drawingId)
+        {
+            var groupName = drawingId;
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+
+            await Clients.Group(groupName).SendAsync("EditorRemoved");
+        }
+
+        public async Task SendDrawingContext(string drawingId, object imageUrl)
+        {
+            var groupName = drawingId;
+
+            await Clients.OthersInGroup(groupName).SendAsync("ContextFromHub", imageUrl);
+        }
+
+        public async Task EraseDrawing(string drawingId)
+        {
+            var groupName = drawingId;
+
+            await Clients.OthersInGroup(groupName).SendAsync("EraseDrawing");
         }
     }
 }
