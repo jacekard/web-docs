@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthorizeService } from '../../api-authorization/authorize.service';
-import { WebDocument } from '../interfaces/webDocument';
+import { WebDocument } from '../interfaces/web-document';
 import { resolve } from 'q';
 
 @Injectable({

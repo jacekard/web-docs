@@ -1,0 +1,30 @@
+language: minimal
+env:
+  global:
+  - IMAGE_NAME=gut/webdocs_stable
+  - SERVER_IP=rack-monster.ds.pg.gda.pl
+  - SERVER_PORT=49751
+  - CI_USER=deploy
+  - KEY_FILE=deploy_key
+  - CONTAINER_NAME=webdoc
+branches:
+  only:
+  - master
+services:
+- docker
+before_install:
+- openssl aes-256-cbc -K $encrypted_5704401eb47b_key -iv $encrypted_5704401eb47b_iv -in secrets.tar.enc -out secrets.tar -d
+- tar xvf secrets.tar
+- eval "$(ssh-agent -s)"
+- chmod 600 ./$KEY_FILE
+- echo -e "Host $SERVER_IP\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+- ssh-add ./$KEY_FILE
+script:
+- cd WebDocs
+- mv ../cert.pfx ./cert.pfx
+- docker build -t $IMAGE_NAME .
+- docker save -o ../temp.tar $IMAGE_NAME
+- cd ../
+- scp -i ./$KEY_FILE -P $SERVER_PORT ./temp.tar $CI_USER@$SERVER_IP:~/temp.tar
+- ssh -T -i ./$KEY_FILE -p $SERVER_PORT $CI_USER@$SERVER_IP "bash -s" < ops/deploy.sh
+  $CONTAINER_NAME $IMAGE_NAME
