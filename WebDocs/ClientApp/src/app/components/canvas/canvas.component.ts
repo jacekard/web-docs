@@ -105,8 +105,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
     })
 
     this.signalR.registerHandler("ContextFromHub", (imageUrl) => {
-      this.spinner.show();
-      this.createDrawingFromDataUrl(imageUrl, this.ctx).finally(() => this.spinner.hide());
+      this.createDrawingFromDataUrl(imageUrl, this.ctx);
     })
 
     this.signalR.registerHandler("EraseDrawing", () => {
@@ -115,6 +114,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   sendDrawing(data: DrawingData) {
+    console.log(data.size);
     this.signalR.send("Draw", this.uuid, data);
   }
 

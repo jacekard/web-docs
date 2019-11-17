@@ -15,6 +15,6 @@ namespace WebDocs.Models
         public float CurrentY { get; set; }
 
         public string Color { get; set; }
-        public int Size { get; set; }
+        public float Size { get; set; }
     }
 }
