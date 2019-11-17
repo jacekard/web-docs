@@ -92,8 +92,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
   saveDocument() {
     this.document.content = this.ckeditor.getData();
     this.document.name = this.title;
-    this.spinner.show();
-    this.signalR.send("saveDocument", this.document).finally(() => this.spinner.hide());
+    this.signalR.send("saveDocument", this.document);
   }
 
   initCkeEditor() {
@@ -118,19 +117,13 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
   }
 
   updateDocument() {
-    this.getEditorData().then(() => this.spinner.show()).finally(() => console.log("pobralem dane"));
+    this.document.content = this.ckeditor.getData();
+    this.document.name = this.title;
     
     this.signalR.send("updateDocumentContent", this.document)
     .finally(() => {
         this.spinner.hide();
       });
-  }
-
-  getEditorData() : Promise<void> {
-    this.document.content = this.ckeditor.getData();
-    this.document.name = this.title;
-
-    return Promise.resolve();
   }
 
   @HostListener('window:scroll')
