@@ -18,8 +18,10 @@ export class DocumentsComponent implements OnInit {
   documents: WebDocument[]
 
   ngOnInit() {
-    this.docsService.getAllDocuments().then((response =>
-      response.subscribe(docs => this.documents = docs)));
+    setTimeout(() => {
+      this.docsService.getAllDocuments().then(response =>
+        response.subscribe(docs => this.documents = docs));
+      }, 500);
   }
 
   createDrawing() {

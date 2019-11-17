@@ -9,8 +9,8 @@ using WebDocs.Data;
 namespace WebDocs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20191024210120_initial")]
-    partial class initial
+    [Migration("20191117143520_SqliteMigration")]
+    partial class SqliteMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -302,9 +302,6 @@ namespace WebDocs.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Content")
                         .HasColumnType("TEXT");
 
@@ -319,9 +316,22 @@ namespace WebDocs.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
-
                     b.ToTable("Documents");
+                });
+
+            modelBuilder.Entity("WebDocs.Models.UserDocument", b =>
+                {
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("DocumentId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ApplicationUserId", "DocumentId");
+
+                    b.HasIndex("DocumentId");
+
+                    b.ToTable("UserDocuments");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -375,11 +385,19 @@ namespace WebDocs.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WebDocs.Models.Document", b =>
+            modelBuilder.Entity("WebDocs.Models.UserDocument", b =>
                 {
-                    b.HasOne("WebDocs.Models.ApplicationUser", null)
-                        .WithMany("Documents")
-                        .HasForeignKey("ApplicationUserId");
+                    b.HasOne("WebDocs.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany("UserDocuments")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebDocs.Models.Document", "Document")
+                        .WithMany("UserDocuments")
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

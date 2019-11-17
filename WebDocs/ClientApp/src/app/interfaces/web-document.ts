@@ -1,6 +1,5 @@
 export class WebDocument {
     id: number;
-    userId: string;
     name: string;
     content: string;
     lastModifiedDate: Date;
@@ -10,6 +9,5 @@ export class WebDocument {
         this.name = '';
         this.content = '';
         this.lastModifiedDate = new Date();
-        this.userId = userId;
     }
 }

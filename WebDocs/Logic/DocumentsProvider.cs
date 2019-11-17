@@ -20,38 +20,60 @@ namespace WebDocs.Logic
 
         public List<RestDocument> GetDocuments(string userId)
         {
-            var user = this.dbContext.Users.Single(x => x.Id == userId);
+            var user = this.dbContext.Users
+                .Include(x => x.UserDocuments)
+                .ThenInclude(x => x.Document)
+                .Single(x => x.Id == userId);
 
-            if (user.Documents == null)
+            return user.UserDocuments.Select(x => new RestDocument()
             {
-                return null;
-            }
-            else
-            {
-                return user.Documents.Select(x => new RestDocument()
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    LastModifiedDate = x.LastModifiedDate
-                }).ToList();
-            }
+                Id = x.Document.Id,
+                Name = x.Document.Name,
+                LastModifiedDate = x.Document.LastModifiedDate
+            }).ToList();
         }
 
         public async Task<Document> GetDocument(string userId, long docId)
         {
-            var document = await this.dbContext.Documents.FirstOrDefaultAsync(x => x.Id == docId) ?? new Document();
-            document.UserId = userId;
+            var document = await this.dbContext.Documents.FirstOrDefaultAsync(x => x.Id == docId);
+            var user = await this.dbContext.Users.Include(x => x.UserDocuments).FirstOrDefaultAsync(x => x.Id == userId);
 
-            this.SaveDocument(document);
+            if (document == null)
+            {
+                document = new Document();
+                this.dbContext.Documents.Add(document);
+                await this.dbContext.SaveChangesAsync();
+            }
+
+            if (!user.UserDocuments.Any(x => x.DocumentId == document.Id))
+            {
+                user.UserDocuments.Add(new UserDocument()
+                {
+                    DocumentId = document.Id,
+                    Document = document,
+                    ApplicationUser = user,
+                    ApplicationUserId = user.Id
+                });
+
+                await this.dbContext.SaveChangesAsync();
+            }
 
             return document;
         }
 
         public async Task DeleteDocument(string userId, long docId)
         {
-            var document = await this.dbContext.Documents.FirstOrDefaultAsync(x => x.Id == docId);
-            this.dbContext.Users.Single(x => x.Id == userId).Documents.Remove(document);
-            this.dbContext.SaveChanges();
+            try
+            {
+                var ud = await this.dbContext.UserDocuments.SingleOrDefaultAsync(x => x.ApplicationUserId == userId && x.DocumentId == docId);
+                this.dbContext.UserDocuments.Remove(ud);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Log.Error("Error ocurred in delete document. UserDocuments contains more than one record.");
+            }
+
+            await this.dbContext.SaveChangesAsync();
         }
 
         public void SaveDocument(Document document)
@@ -61,22 +83,8 @@ namespace WebDocs.Logic
                 document.LastModifiedDate = DateTime.Now;
 
                 var entity = this.dbContext.Documents.Find(document.Id);
-                if (entity == null)
-                {
-                    this.dbContext.Documents.Add(document);
-                    var user = this.dbContext.Users.Find(document.UserId);
-                    user.Documents.Add(document);
-                }
-                else
-                {
-                    var user = this.dbContext.Users.Find(document.UserId);
-                    var userDocument = user.Documents.FirstOrDefault(x => x.Id == document.Id);
-                    if (userDocument == null)
-                    {
-                        user.Documents.Add(document);
-                    }
-                    this.dbContext.Entry(entity).CurrentValues.SetValues(document);
-                }
+
+                this.dbContext.Entry(entity).CurrentValues.SetValues(document);
 
                 this.dbContext.SaveChanges();
             }
@@ -85,5 +93,6 @@ namespace WebDocs.Logic
                 Log.Error(ex, "Error occured while saving document");
             }
         }
+
     }
 }
