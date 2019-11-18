@@ -53,9 +53,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
       this.docsService.getDocument(parseInt(id))
         .then(p => p
           .subscribe((doc) => {
-            console.log(doc);
             this.document = doc;
-            console.log(this.document);
             this.title = this.document.name;
             if (this.document.content !== null) {
               this.ckeditor.setData(this.document.content);

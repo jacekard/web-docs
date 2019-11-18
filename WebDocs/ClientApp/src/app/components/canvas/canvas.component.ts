@@ -114,7 +114,6 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   sendDrawing(data: DrawingData) {
-    console.log(data.size);
     this.signalR.send("Draw", this.uuid, data);
   }
 
