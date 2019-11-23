@@ -103,7 +103,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
   }
 
   SendSaveDocument(): Boolean {
-    console.log(this.document.latestVersion);
     this.docsService.saveDocument(this.document).subscribe(
       (data: any) => {
         this.isSaving = false;
