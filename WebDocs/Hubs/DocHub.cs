@@ -11,27 +11,25 @@ namespace WebDocs.Hubs
 {
     public class DocHub : Hub
     {
-        private readonly IDocumentsProvider docsProvider;
+        private readonly ISyncingService syncService;
 
-        private static readonly object syncLock = new object();
-
-        public DocHub(IDocumentsProvider docsProvider)
+        public DocHub(ISyncingService syncService)
         {
-            this.docsProvider = docsProvider;
+            this.syncService = syncService;
         }
 
-        public void SaveDocument(Document document)
-        {
-            if (document == null)
-            {
-                return;
-            }
+        //public void SaveDocument(Document document)
+        //{
+        //    if (document == null)
+        //    {
+        //        return;
+        //    }
 
-            lock (syncLock)
-            {
-                docsProvider.SaveDocument(document);
-            }
-        }
+        //    lock (syncLock)
+        //    {
+        //        docsProvider.SaveDocument(document);
+        //    }
+        //}
 
         public async Task UpdateDocumentContent(Document document)
         {
@@ -41,7 +39,8 @@ namespace WebDocs.Hubs
             }
 
             var groupName = document.Id.ToString();
-            await Clients.OthersInGroup(groupName).SendAsync("ReceiveDocumentContent", document.Content);
+            this.syncService.UpdateLatestVersion(document.Id, document.LatestVersion);
+            await Clients.OthersInGroup(groupName).SendAsync("ReceiveDocumentContent", document.Content, document.LatestVersion);
         }
 
         public async Task AddToDocumentGroup(long documentId)

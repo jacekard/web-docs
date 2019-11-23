@@ -7,6 +7,8 @@ import { WebDocument } from 'src/app/interfaces/web-document';
 import * as $ from 'jquery';
 import { SnackBarService } from 'src/app/services/snack-bar.service';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { v4 as uuid } from 'uuid';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-workspace',
@@ -18,6 +20,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
   title: string;
   processing: Boolean = false;
   ckeditor: any;
+  isSaving: Boolean = false;
+  routeId: number;
+  trySaveInterval: any;
 
   constructor(
     private signalR: SignalRService,
@@ -25,7 +30,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     private router: Router,
     private docsService: DocumentsService,
     private snackBar: SnackBarService,
-    private spinner: NgxSpinnerService) { }
+    private spinner: NgxSpinnerService,
+    private location: Location) {
+      this.checkRouteId();
+    }
 
   ngOnInit() {
     this.spinner.show();
@@ -43,31 +51,38 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     this.RemoveFromDocumentGroup();
   }
 
-  initWorkspace() {
+  checkRouteId() {
     const id = this.route.snapshot.paramMap.get('id');
-
-    if (id == null) {
-
+    const parsedId = parseInt(id);
+    if (isNaN(parsedId)) {
+      this.location.back();
     }
     else {
-      this.docsService.getDocument(parseInt(id))
-        .then(p => p
-          .subscribe((doc) => {
-            this.document = doc;
-            this.title = this.document.name;
-            if (this.document.content !== null) {
-              this.ckeditor.setData(this.document.content);
-            }
-          }));
+      this.routeId = parsedId;
     }
   }
 
+  initWorkspace() {
+    this.docsService.getDocument(this.routeId)
+      .then(p => p
+        .subscribe((doc) => {
+          this.document = doc;
+          this.title = this.document.name;
+          this.document.latestVersion = uuid();
+          if (this.document.content !== null) {
+            this.ckeditor.setData(this.document.content);
+          }
+        },
+        error => {
+          this.location.back();
+        }));
+  }
+
   registerConnections() {
-    this.signalR.registerHandler("ReceiveDocumentContent", (content: string) => {
+    this.signalR.registerHandler("ReceiveDocumentContent", (content: string, latestVersion: string) => {
       this.document.content = content;
-      this.spinner.show();
+      this.document.latestVersion = latestVersion;
       this.ckeditor.setData(content);
-      this.spinner.hide();
     });
 
     this.signalR.registerHandler("EditorAdded", () => {
@@ -87,10 +102,38 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     this.signalR.send("RemoveFromDocumentGroup", this.document.id);
   }
 
+  SendSaveDocument(): Boolean {
+    console.log(this.document.latestVersion);
+    this.docsService.saveDocument(this.document).subscribe(
+      (data: any) => {
+        this.isSaving = false;
+        this.spinner.hide();
+        return true;
+      },
+      error => {
+        console.log(error)
+        return false;
+      }
+    );
+    return true;
+  }
+
   saveDocument() {
+    this.spinner.show();
+    this.isSaving = true;
     this.document.content = this.ckeditor.getData();
     this.document.name = this.title;
-    this.signalR.send("saveDocument", this.document);
+    this.trySaveInterval = setInterval(() => this.trySaveDocument(), 200);
+  }
+
+  trySaveDocument() {
+    if(this.SendSaveDocument()) {
+      clearInterval(this.trySaveInterval);
+    }
+  }
+
+  onNameChange($event) {
+    this.document.latestVersion = uuid();
   }
 
   initCkeEditor() {
@@ -116,9 +159,10 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
   updateDocument() {
     this.document.content = this.ckeditor.getData();
     this.document.name = this.title;
-    
+    this.document.latestVersion = uuid();
+
     this.signalR.send("updateDocumentContent", this.document)
-    .finally(() => {
+      .finally(() => {
         this.spinner.hide();
       });
   }

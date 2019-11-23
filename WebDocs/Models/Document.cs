@@ -18,6 +18,8 @@ namespace WebDocs.Models
         public DateTime CreationDate { get; set; } = DateTime.Now;
 
         public DateTime LastModifiedDate { get; set; } = DateTime.Now;
+
+        public string LatestVersion { get; set; }
     }
 
     public class UserDocument
