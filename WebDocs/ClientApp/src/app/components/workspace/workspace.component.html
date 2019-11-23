@@ -2,7 +2,7 @@
 
     <form #documentForm="ngForm" class="d-flex justify-content-center non-printable">
             <input class="form-control form-control-lg" type="text" name="title" placeholder="Name your document"
-                [(ngModel)]="title" />
+                [(ngModel)]="title" (ngModelChange)="onNameChange($event)" />
 
             </form>
 

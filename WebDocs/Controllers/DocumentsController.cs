@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +17,12 @@ namespace WebDocs.Controllers
     public class DocumentsController : Controller
     {
         private readonly IDocumentsProvider docsProvider;
+        private readonly ISyncingService syncService;
 
-        public DocumentsController(IDocumentsProvider docsProvider)
+        public DocumentsController(IDocumentsProvider docsProvider, ISyncingService syncService)
         {
             this.docsProvider = docsProvider;
+            this.syncService = syncService;
         }
 
         [HttpGet]
@@ -64,6 +67,25 @@ namespace WebDocs.Controllers
             {
                 var userId = User.Claims.Where(claim => claim.Type == ClaimTypes.NameIdentifier).FirstOrDefault().Value;
                 await this.docsProvider.DeleteDocument(userId, id);
+
+                return this.Ok();
+            }
+            catch (Exception ex)
+            {
+                return this.NotFound(ex);
+            }
+        }
+
+        [HttpPut]
+        [Route("{id}")]
+        public IActionResult SaveDocument([FromBody] Document document)
+        {
+            try
+            {
+                if (!this.syncService.CheckSync(document))
+                {
+                    return this.Forbid();
+                }
 
                 return this.Ok();
             }

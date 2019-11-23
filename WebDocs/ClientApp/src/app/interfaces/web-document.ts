@@ -3,6 +3,7 @@ export class WebDocument {
     name: string;
     content: string;
     lastModifiedDate: Date;
+    latestVersion: string;
 
     constructor(userId) {
         this.id = 0;

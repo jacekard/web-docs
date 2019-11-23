@@ -63,6 +63,7 @@ namespace WebDocs
 
             services.AddTransient<IDocumentsProvider, DocumentsProvider>();
             services.AddTransient<IUsersProvider, UsersProvider>();
+            services.AddSingleton<ISyncingService, SyncingService>();
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

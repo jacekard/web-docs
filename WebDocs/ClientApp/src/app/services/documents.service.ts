@@ -41,4 +41,9 @@ export class DocumentsService {
       { headers: !token ? {} : {'Authorization': `Bearer ${token}`}})
         .toPromise();
   }
+
+  saveDocument(document: WebDocument) : Observable<WebDocument> {
+    console.log(document);
+    return this.http.put<WebDocument>(`/api/documents/${document.id}`, document)
+  }
 }

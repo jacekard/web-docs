@@ -90,9 +90,10 @@
       <Compile Remove="Data\Migrations\20191117141453_InitialMigration.Designer.cs" />
       <Compile Remove="Data\Migrations\20191117143423_SqliteMigration.cs" />
       <Compile Remove="Data\Migrations\20191117143423_SqliteMigration.Designer.cs" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Data\Migrations\" />
+      <Compile Remove="Data\Migrations\20191123172724_AddLatestVersionGuid.cs" />
+      <Compile Remove="Data\Migrations\20191123172724_AddLatestVersionGuid.Designer.cs" />
+      <Compile Remove="Data\Migrations\20191123180130_LatestVersionStringType.cs" />
+      <Compile Remove="Data\Migrations\20191123180130_LatestVersionStringType.Designer.cs" />
     </ItemGroup>
     <Target Name="BrowsersListWarningsAsInfo" BeforeTargets="WebCompile">
         <FileUpdate Files="@(BrowsersListNodeJsFiles)" Regex="console.warn" ReplacementText="console.log" />
