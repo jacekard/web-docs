@@ -43,7 +43,6 @@ export class DocumentsService {
   }
 
   saveDocument(document: WebDocument) : Observable<WebDocument> {
-    console.log(document);
     return this.http.put<WebDocument>(`/api/documents/${document.id}`, document)
   }
 }
