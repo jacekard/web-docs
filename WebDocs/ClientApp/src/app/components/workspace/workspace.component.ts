@@ -122,13 +122,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     this.isSaving = true;
     this.document.content = this.ckeditor.getData();
     this.document.name = this.title;
-    this.trySaveInterval = setInterval(() => this.trySaveDocument(), 200);
-  }
-
-  trySaveDocument() {
-    if(this.SendSaveDocument()) {
-      clearInterval(this.trySaveInterval);
-    }
+    this.SendSaveDocument();
   }
 
   onNameChange($event) {
@@ -160,10 +154,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     this.document.name = this.title;
     this.document.latestVersion = uuid();
 
-    this.signalR.send("updateDocumentContent", this.document)
-      .finally(() => {
-        this.spinner.hide();
-      });
+    this.signalR.send("updateDocumentContent", this.document);
   }
 
   @HostListener('window:scroll')

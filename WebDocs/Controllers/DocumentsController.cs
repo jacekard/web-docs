@@ -82,16 +82,13 @@ namespace WebDocs.Controllers
         {
             try
             {
-                if (!this.syncService.CheckSync(document))
-                {
-                    return this.Forbid();
-                }
+                this.docsProvider.SaveDocument(document);
 
                 return this.Ok();
             }
-            catch (Exception ex)
+            catch
             {
-                return this.NotFound(ex);
+                return this.StatusCode(500);
             }
         }
     }
