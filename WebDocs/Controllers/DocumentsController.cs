@@ -82,10 +82,7 @@ namespace WebDocs.Controllers
         {
             try
             {
-                if (!this.syncService.CheckSync(document))
-                {
-                    return this.Forbid();
-                }
+                this.docsProvider.SaveDocument(document);
 
                 return this.Ok();
             }
