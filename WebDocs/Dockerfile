@@ -23,7 +23,7 @@ FROM build AS publish
 ARG PROJECT_PLATFORM
 ARG PROJECT_NAME
 ARG CONFIG_MODE
-RUN dotnet tool install --global dotnet-ef
+RUN dotnet tool install --global dotnet-ef --version 3.0.0
 RUN /root/.dotnet/tools/dotnet-ef database update
 RUN dotnet publish "$PROJECT_NAME.csproj" -c $CONFIG_MODE -o /app -r $PROJECT_PLATFORM
 
