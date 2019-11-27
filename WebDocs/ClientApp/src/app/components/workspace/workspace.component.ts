@@ -154,10 +154,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     this.document.name = this.title;
     this.document.latestVersion = uuid();
 
-    this.signalR.send("updateDocumentContent", this.document)
-      .finally(() => {
-        this.spinner.hide();
-      });
+    this.signalR.send("updateDocumentContent", this.document);
   }
 
   @HostListener('window:scroll')

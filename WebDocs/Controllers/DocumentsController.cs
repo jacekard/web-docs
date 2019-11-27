@@ -86,9 +86,9 @@ namespace WebDocs.Controllers
 
                 return this.Ok();
             }
-            catch (Exception ex)
+            catch
             {
-                return this.NotFound(ex);
+                return this.StatusCode(500);
             }
         }
     }
